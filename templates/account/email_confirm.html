@@ -1,0 +1,37 @@
+{% load static %}
+{% load account %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmación de Email</title>
+    <link rel="stylesheet" href="{% static 'users/css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="confirm-email form">
+            <header>Confirmación de Email</header>
+            
+            {% if confirmation %}
+                {% user_display confirmation.email_address.user as user_display %}
+                
+                {% if can_confirm %}
+                    <p>Por favor confirma que <strong>{{ confirmation.email_address.email }}</strong> es tu dirección de correo electrónico.</p>
+                    
+                    <form method="post" action="{% url 'account_confirm_email' confirmation.key %}">
+                        {% csrf_token %}
+                        <button type="submit" class="button">Confirmar</button>
+                    </form>
+                {% else %}
+                    <p class="error">No se puede confirmar {{ confirmation.email_address.email }} porque ya está confirmado por otra cuenta.</p>
+                {% endif %}
+                
+            {% else %}
+                <p>Este enlace de confirmación ha expirado o es inválido.</p>
+                <a href="{% url 'account_email' %}" class="button">Solicitar nuevo enlace</a>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

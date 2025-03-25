@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificación de Email Enviada</title>
+    <link rel="stylesheet" href="{% static 'users/css/style.css' %}">
+</head>
+<body>
+    <div class="container">
+        <div class="verification-sent form">
+            <header>Verificación Requerida</header>
+            
+            <div class="message">
+                <p>Hemos enviado un email de verificación a tu dirección de correo.</p>
+                <p>Por favor sigue el enlace incluido para completar tu registro.</p>
+            </div>
+
+            <div class="tips">
+                <p>Si no recibes el email:</p>
+                <ul>
+                    <li>Revisa tu carpeta de spam</li>
+                    <li>Verifica que ingresaste correctamente tu email</li>
+                    <li>Espera unos minutos (puede tardar en llegar)</li>
+                </ul>
+            </div>
+
+            <div class="links">
+                <a href="{% url 'account_login' %}" class="link">Volver al Login</a>
+                <a href="{% url 'account_email' %}" class="link">Reenviar verificación</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

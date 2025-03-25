@@ -1,0 +1,137 @@
+/* Importar Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@200;300;400;500;600;700&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  width: 100%;
+  background: #F8E4C9; /* Fondo color crema pastel */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.container {
+  max-width: 400px;
+  width: 100%;
+  background: #D9A679; /* Marrón claro tipo café */
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+
+.form header {
+  font-size: 2rem;
+  font-weight: 600;
+  color: #5D4037; /* Marrón oscuro */
+  margin-bottom: 1.5rem;
+}
+
+.form input {
+  height: 50px;
+  width: 100%;
+  padding: 0 15px;
+  font-size: 17px;
+  margin-bottom: 1rem;
+  border: 2px solid #C89F7C; /* Borde marrón claro */
+  border-radius: 6px;
+  outline: none;
+  background: #FAF3E0; /* Fondo beige */
+}
+
+.form input:focus {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  border-color: #B5651D; /* Marrón tostado */
+}
+
+.form a {
+  font-size: 16px;
+  color: #8D6E63; /* Marrón medio */
+  text-decoration: none;
+}
+
+.form a:hover {
+  text-decoration: underline;
+}
+
+button {
+  height: 50px;
+  width: 100%;
+  border: none;
+  background: #B5651D; /* Marrón tostado */
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+button:hover {
+  background: #8D4E16; /* Marrón más oscuro */
+}
+
+p {
+  text-align: center;
+  margin-top: 10px;
+  color: #5D4037; /* Marrón oscuro */
+}
+
+
+/* Estilos para el botón 'Recordarme' */
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.checkbox-container label {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: #5D4037; /* Marrón oscuro */
+}
+
+.checkbox-container .custom-checkbox {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;  /* Circular */
+  background-color: #F8E4C9;
+  border: 2px solid #B5651D; /* Marrón tostado */
+  margin-right: 10px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.checkbox-container .custom-checkbox:checked {
+  background-color: #B5651D; /* Marrón tostado */
+  border-color: #8D4E16; /* Marrón más oscuro */
+}
+
+.checkbox-container .custom-checkbox:focus {
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
+}
+
+button {
+  width: 100%;
+  padding: 10px;
+  background-color: #B5651D; /* Marrón tostado */
+  color: white;
+  font-size: 1.2rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+button:hover {
+  background-color: #8D4E16; /* Marrón más oscuro */
+}

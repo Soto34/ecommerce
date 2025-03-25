@@ -1,0 +1,162 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %} Sabores & Placeres {% endblock %}
+
+{% block content %}
+    
+    <!-- Carousel Start -->
+    <div class="container-fluid p-0 pb-5 wow fadeIn" data-wow-delay="0.1s">
+        <div class="owl-carousel header-carousel position-relative">
+            <div class="owl-carousel-item position-relative">
+                <img class="img-fluid" src="{% static 'home/img/carousel-1.jpg' %}" alt="Deliciosos panes recién horneados">
+                <div class="owl-carousel-inner">
+                    <div class="container">
+                        <div class="row justify-content-start">
+                            <div class="col-lg-8">
+                                <p class="text-primary text-uppercase fw-bold mb-2">// La Mejor Panadería</p>
+                                <h1 class="display-1 text-light mb-4 animated slideInDown">Horneamos Con Pasión y Tradición</h1>
+                                <p class="text-light fs-5 mb-4 pb-3">Nuestros panes y repostería están hechos con los mejores ingredientes y mucho cariño. Cada bocado te llevará directo a la frescura y calidad que solo nuestra panadería artesanal puede ofrecer.</p>
+                                <a href="" class="btn btn-primary rounded-pill py-3 px-5">Leer Más</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="owl-carousel-item position-relative">
+                <img class="img-fluid" src="{% static 'home/img/carousel-2.jpeg' %}" alt="Repostería artesanal creativa">
+                <div class="owl-carousel-inner">
+                    <div class="container">
+                        <div class="row justify-content-start">
+                            <div class="col-lg-8">
+                                <p class="text-primary text-uppercase fw-bold mb-2">// La Mejor Repostería</p>
+                                <h1 class="display-1 text-light mb-4 animated slideInDown">Creaciones Dulces Hechas Con Amor</h1>
+                                <p class="text-light fs-5 mb-4 pb-3">Cada pastel, tarta o galleta está diseñada con un toque único. La creatividad y la calidad se fusionan en nuestras deliciosas obras de repostería que te encantarán en cada ocasión.</p>
+                                <a href="" class="btn btn-primary rounded-pill py-3 px-5">Descubre Más</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Carousel End -->
+
+
+
+    <!-- Inicio de Nosotros -->
+    <div class="container-xxl py-6">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <div class="row img-twice position-relative h-100">
+                        <div class="col-6">
+                            <img class="img-fluid rounded" src="{% static 'home/img/about-1.jpg' %}" alt="Imagen de panadería 1">
+                        </div>
+                        <div class="col-6 align-self-end">
+                            <img class="img-fluid rounded" src="{% static 'home/img/about-2.jpg' %}" alt="Imagen de repostería 2">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="h-100">
+                        <p class="text-primary text-uppercase mb-2">// Sobre Nosotros</p>
+                        <h1 class="display-6 mb-4">Horneamos Con Pasión, Dulzura y Tradición</h1>
+                        <p>En nuestra panadería y repostería, cada receta está llena de historia, dedicación y cariño. Nos enorgullece ofrecer productos frescos y deliciosos elaborados con los mejores ingredientes. Ya sea un pan crujiente, una torta decorada o unas galletas recién horneadas, en cada uno de nuestros productos encontrarás el sabor y la calidad que solo se logra con mucho amor por lo que hacemos.</p>
+                        <p>Nos especializamos en endulzar tu vida con lo mejor de la repostería artesanal, mientras que nuestros panes frescos acompañan tu día a día. Cada bocado es una mezcla perfecta de tradición, creatividad y calidad.</p>
+                        <div class="row g-2 mb-4">
+                            <div class="col-sm-6">
+                                <i class="fa fa-check text-primary me-2"></i>Productos de Panadería Frescos y Artesanales
+                            </div>
+                            <div class="col-sm-6">
+                                <i class="fa fa-check text-primary me-2"></i>Repostería Creativa y Personalizada
+                            </div>
+                            <div class="col-sm-6">
+                                <i class="fa fa-check text-primary me-2"></i>Pedidos en Línea para Tu Comodidad
+                            </div>
+                            <div class="col-sm-6">
+                                <i class="fa fa-check text-primary me-2"></i>Entrega a Domicilio de Tus Sabores Favoritos
+                            </div>
+                        </div>
+                        <a class="btn btn-primary rounded-pill py-3 px-5" href="">Leer Más</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin de Nosotros -->
+
+
+
+
+
+
+    <!-- Inicio de Servicios -->
+    <div class="container-xxl py-6">
+        <div class="container">
+            <div class="row g-5">
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.1s">
+                    <p class="text-primary text-uppercase mb-2">// Nuestros Servicios</p>
+                    <h1 class="display-6 mb-4">¿Qué Te Ofrecemos?</h1>
+                    <p class="mb-5">En nuestro negocio, nos comprometemos a ofrecerte lo mejor. Cada uno de nuestros productos está diseñado con cuidado, con una atención a los detalles que te garantizará una experiencia única. Queremos que cada vez que elijas nuestros productos, sientas que has tomado la decisión correcta. Con nuestros servicios, siempre obtendrás lo que necesitas y mucho más.</p>
+                    <div class="row gy-5 gx-4">
+                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.1s">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 btn-square bg-primary rounded-circle me-3">
+                                    <i class="fa fa-bread-slice text-white"></i>
+                                </div>
+                                <h5 class="mb-0">Productos de Alta Calidad</h5>
+                            </div>
+                            <span>Porque sabemos que la calidad es lo primero, ofrecemos solo productos que cumplen con los más altos estándares. Cada detalle está cuidado, para que disfrutes de lo mejor.</span>
+                        </div>
+                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.2s">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 btn-square bg-primary rounded-circle me-3">
+                                    <i class="fa fa-birthday-cake text-white"></i>
+                                </div>
+                                <h5 class="mb-0">Productos Personalizados</h5>
+                            </div>
+                            <span>Sabemos que cada cliente es único, por eso ofrecemos productos personalizados que se adaptan a tus necesidades. Si tienes una idea en mente, nosotros la hacemos realidad.</span>
+                        </div>
+                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.3s">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 btn-square bg-primary rounded-circle me-3">
+                                    <i class="fa fa-cart-plus text-white"></i>
+                                </div>
+                                <h5 class="mb-0">Pedidos en Línea</h5>
+                            </div>
+                            <span>Compra de forma rápida y sencilla desde la comodidad de tu hogar. Nuestro sistema de pedidos en línea es fácil de usar, seguro y eficiente, para que tengas lo que necesitas en tu puerta sin complicaciones.</span>
+                        </div>
+                        <div class="col-sm-6 wow fadeIn" data-wow-delay="0.4s">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="flex-shrink-0 btn-square bg-primary rounded-circle me-3">
+                                    <i class="fa fa-truck text-white"></i>
+                                </div>
+                                <h5 class="mb-0">Entrega a Domicilio</h5>
+                            </div>
+                            <span>Con nuestro servicio de entrega a domicilio, te llevamos tus productos directamente a tu puerta. Sin estrés, sin colas, solo la comodidad de recibir tus compras sin mover un dedo.</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6 wow fadeInUp" data-wow-delay="0.5s">
+                    <div class="row img-twice position-relative h-100">
+                        <div class="col-6">
+                            <img class="img-fluid rounded" src="{% static 'home/img/service-1.jpg' %}" alt="Imagen de producto 1">
+                        </div>
+                        <div class="col-6 align-self-end">
+                            <img class="img-fluid rounded" src="{% static 'home/img/service-2.jpg' %}" alt="Imagen de producto 2">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Fin de Servicios -->
+
+
+
+    
+
+
+    
+{% endblock %}
