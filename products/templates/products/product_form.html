@@ -1,0 +1,128 @@
+{% extends "products/base.html" %}
+{% load static %}
+
+{% block title %}{% if product %}Editar{% else %}Nuevo{% endif %} Producto{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="card">
+        <div class="card-header">
+            <h2>{% if product %}Editar{% else %}Nuevo{% endif %} Producto</h2>
+            <a href="{% url 'products_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+        <div class="card-body">
+            <form id="product-form" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_name">Nombre</label>
+                    {{ form.name }}
+                    <small class="form-error text-danger">{{ form.name.errors }}</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_description">Descripción</label>
+                    {{ form.description }}
+                    <small class="form-error text-danger">{{ form.description.errors }}</small>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_price">Precio</label>
+                        {{ form.price }}
+                        <small class="form-error text-danger">{{ form.price.errors }}</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="id_stock">Stock</label>
+                        {{ form.stock }}
+                        <small class="form-error text-danger">{{ form.stock.errors }}</small>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_category">Categoría</label>
+                    {{ form.category }}
+                    <small class="form-error text-danger">{{ form.category.errors }}</small>
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_image">Imagen</label>
+                    {{ form.image }}
+                    <small class="form-error text-danger">{{ form.image.errors }}</small>
+                    {% if product and product.image %}
+                    <div class="current-image mt-2">
+                        <small>Imagen actual:</small>
+                        <img src="{{ product.image.url }}" class="img-thumbnail mt-1" width="150">
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Validación de formulario con SweetAlert
+document.getElementById('product-form').addEventListener('submit', function(e) {
+    const requiredFields = this.querySelectorAll('[required]');
+    let isValid = true;
+    
+    requiredFields.forEach(field => {
+        if (!field.value.trim()) {
+            isValid = false;
+            field.classList.add('is-invalid');
+        }
+    });
+    
+    if (!isValid) {
+        e.preventDefault();
+        Swal.fire({
+            title: 'Campos requeridos',
+            text: 'Por favor complete todos los campos obligatorios',
+            icon: 'warning',
+            confirmButtonColor: '#4361ee'
+        });
+    }
+});
+
+// Mostrar errores específicos
+{% if form.errors %}
+document.addEventListener('DOMContentLoaded', function() {
+    Swal.fire({
+        title: 'Error en el formulario',
+        html: `{% for field, errors in form.errors.items %}
+               <b>{{ field|title }}:</b> {{ errors|join:", " }}<br>
+               {% endfor %}`,
+        icon: 'error'
+    });
+});
+{% endif %}
+</script>
+
+<style>
+.is-invalid {
+    border-color: #f72585 !important;
+}
+.form-error {
+    display: block;
+    margin-top: 5px;
+}
+.img-thumbnail {
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    padding: 2px;
+}
+</style>
+{% endblock %}

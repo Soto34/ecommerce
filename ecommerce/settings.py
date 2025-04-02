@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os
 from pathlib import Path
+from django.contrib.messages import constants as messages
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -44,6 +45,7 @@ INSTALLED_APPS = [
     
     'home',
     'users',
+    'products',
 ]
 
 
@@ -57,7 +59,7 @@ AUTHENTICATION_BACKENDS = (
 # Configuración de Django Allauth
 ACCOUNT_LOGIN_METHODS = {"email"}  # Solo se usa email para el login
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1', 'password2', 'name', 'last_name', 'address']
-
+ACCOUNT_FORMS = {"signup": "users.forms.CustomSignupForm"}
 ACCOUNT_USER_MODEL_USERNAME_FIELD = None  # Indica que no hay campo username
 ACCOUNT_USER_MODEL_EMAIL_FIELD = "email"  # Campo de email como identificador único
 
@@ -152,6 +154,9 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 STATIC_URL = '/static/'
 
 
@@ -172,3 +177,14 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'testingdev283@gmail.com'
 EMAIL_HOST_PASSWORD = 'eyke jssw wgfd hcof'
 DEFAULT_FROM_EMAIL = 'testingdev283@gmail.com'
+
+
+
+# Configuracion del sweet alert
+MESSAGE_TAGS = {
+    messages.DEBUG: 'info',
+    messages.INFO: 'info',
+    messages.SUCCESS: 'success',
+    messages.WARNING: 'warning',
+    messages.ERROR: 'error',
+}

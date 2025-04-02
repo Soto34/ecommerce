@@ -1,0 +1,49 @@
+{% extends "products/base.html" %}
+{% load static %}
+
+{% block title %}{% if category %}Editar{% else %}Nueva{% endif %} Categoría{% endblock %}
+
+{% block content %}
+<div class="content">
+    <div class="card">
+        <div class="card-header">
+            <h2>{% if category %}Editar{% else %}Nueva{% endif %} Categoría</h2>
+            <a href="{% url 'categories_list' %}" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </div>
+        <div class="card-body">
+            <form id="category-form" method="post">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label for="id_name">Nombre</label>
+                    {{ form.name }}
+                    <small class="form-error text-danger">{{ form.name.errors }}</small>
+                </div>
+                
+                <div class="form-footer">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Guardar
+                    </button>
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-undo"></i> Limpiar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
+<style>
+.is-invalid {
+    border-color: #f72585 !important;
+}
+.form-error {
+    display: block;
+    margin-top: 5px;
+}
+</style>
+{% endblock %}

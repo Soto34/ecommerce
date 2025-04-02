@@ -1,0 +1,86 @@
+{% extends "products/base.html" %}
+
+{% block content %}
+<div class="content">
+    <div class="card">
+        <div class="card-header">
+            <h2>Lista de Categorías</h2>
+            <a href="{% url 'category_create' %}" class="btn btn-primary">
+                <i class="fas fa-plus"></i> Nueva Categoría
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Productos</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>{{ category.id }}</td>
+                            <td>{{ category.name }}</td>
+                            <td>{{ category.product_count }}</td>
+                            <td class="actions">
+                                <a href="{% url 'category_update' category.id %}" class="btn btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                
+                                <a onclick="confirmDeleteCategory('{% url 'category_delete' category.id %}')">
+                                    <button type="button" class="btn btn-sm btn-danger">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </a>
+                                
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="4" class="text-center">No se encontraron categorías</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función específica para eliminar categorías
+    function confirmDeleteCategory(url) {
+        Swal.fire({
+            title: '¿Eliminar categoría?',
+            text: "¡Esta acción no se puede revertir!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#3085d6',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // Crear formulario dinámico para enviar POST
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = url;
+                
+                // Añadir CSRF token
+                const csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = 'csrfmiddlewaretoken';
+                csrf.value = '{{ csrf_token }}';
+                form.appendChild(csrf);
+                
+                document.body.appendChild(form);
+                form.submit();
+            }
+        });
+    }
+</script>
+{% endblock %}

@@ -20,7 +20,6 @@ class CustomUserManager(BaseUserManager):
     
 class CustomUser(AbstractBaseUser,PermissionsMixin):
     email = models.EmailField(unique=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
     name = models.CharField(max_length=255)
     last_name = models.CharField(max_length=255)
     
