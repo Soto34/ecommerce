@@ -1,0 +1,75 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %}Catálogo{% endblock %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'products/css/catalogo.css' %}">
+
+<div class="container">
+    <header class="catalog-header">
+        <h1 class="catalog-title">Nuestros Productos</h1>
+        <p class="product-count">
+            Mostrando {{ products.start_index }} - {{ products.end_index }} de {{ products.paginator.count }} productos
+        </p>
+    </header>
+
+    <div class="product-grid">
+        {% for product in products %}
+            <div class="product-card">
+                {% if product.image %}
+                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                {% else %}
+                    <img src="{% static 'img/placeholder-product.jpg' %}" 
+                         alt="Imagen no disponible" 
+                         class="product-image">
+                {% endif %}
+                <div class="product-info">
+                    <h3 class="product-name">{{ product.name }}</h3>
+                    <div class="product-price">
+                        ${{ product.price }}
+                    </div>
+                    <div class="button-group">
+                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
+                            <i class="fas fa-cart-plus me-2"></i>Añadir al Carrito
+                        </a>
+                        <a href="{% url 'detail_catalogo' product.id %}" class="add-to-cart">Ver detalle</a>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-products">
+                <p>No hay productos disponibles.</p>
+            </div>
+        {% endfor %}
+    </div>
+
+    {% if products.has_other_pages %}
+    <div class="pagination">
+        {% if products.has_previous %}
+            <a href="?page={{ products.previous_page_number }}" class="page-link">&laquo;</a>
+        {% endif %}
+
+        {% for num in products.paginator.page_range %}
+            {% if products.number == num %}
+                <a href="?page={{ num }}" class="page-link active">{{ num }}</a>
+            {% else %}
+                <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+            {% endif %}
+        {% endfor %}
+
+        {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}" class="page-link">&raquo;</a>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Debug de imágenes (temporal) -->
+<div style="display: none;">
+    {% for product in products %}
+        {{ product.image.url }}<br>
+        {{ product.image.path }}<br>
+    {% endfor %}
+</div>
+{% endblock %}

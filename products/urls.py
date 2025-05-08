@@ -14,6 +14,10 @@ urlpatterns = [
     path('categories/', categories_list, name='categories_list'),
     path('categories/add/', category_create, name='category_create'),
     path('categories/edit/<int:pk>', category_update, name='category_update'),
-    path('categories/delete/<int:pk>/', category_delete, name='category_delete')
+    path('categories/delete/<int:pk>/', category_delete, name='category_delete'),
+
+    # Catalogo
+    path('catalogo/', catalogo, name='catalogo'),
+    path('catalogo/<int:pk>/', detail, name='detail_catalogo'),
 ]
 

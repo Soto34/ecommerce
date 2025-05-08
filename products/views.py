@@ -5,6 +5,7 @@ from django.urls import reverse
 from django.http import JsonResponse
 from .models import Product, Category
 from .forms import ProductForm, CategoryForm
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 ### Vistas de Productos ###
 def products_list(request):
@@ -60,12 +61,24 @@ def product_delete(request, pk):
     
     
 
-
 ### Vistas de Categorías ###
 def categories_list(request):
     categories = Category.objects.annotate(product_count=Count('product'))
+
     if not categories.exists():
         messages.info(request, 'No hay categorías registradas')
+
+    # Paginación de 10 categorías por página
+    paginator = Paginator(categories, 10)
+    page = request.GET.get('page')
+
+    try:
+        categories = paginator.page(page)
+    except PageNotAnInteger:
+        categories = paginator.page(1)
+    except EmptyPage:
+        categories = paginator.page(paginator.num_pages)
+
     return render(request, 'products/categories_list.html', {'categories': categories})
 
 def category_create(request):
@@ -114,4 +127,30 @@ def category_delete(request, pk):
     return redirect('categories_list')
         
     
-    
+# Catalogo
+def catalogo(request):
+    products = Product.objects.all()
+
+    # Paginación
+    paginator = Paginator(products, 6)
+    page = request.GET.get('page')
+
+    try:
+        products = paginator.page(page)
+    except PageNotAnInteger:
+        products = paginator.page(1)
+    except EmptyPage:
+        products = paginator.page(paginator.num_pages)
+
+    data = {
+        'products':products
+    }
+    return render(request,'products/catalogo.html',data)
+
+
+def detail(request,pk):
+    product = get_object_or_404(Product, pk=pk)
+    data = {
+        'product':product
+    }
+    return render(request,'products/product_detail.html',data)
