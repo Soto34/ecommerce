@@ -15,7 +15,12 @@
         <div class="card-body">
             <form id="product-form" method="post" enctype="multipart/form-data">
                 {% csrf_token %}
-                
+                <div class="form-group">
+                    <label for="id_codigo">Codigo</label>
+                    {{ form.codigo }}
+                    <small class="form-error text-danger">{{ form.codigo.errors }}</small>
+                </div>
+
                 <div class="form-group">
                     <label for="id_name">Nombre</label>
                     {{ form.name }}
@@ -39,6 +44,12 @@
                         <label for="id_stock">Stock</label>
                         {{ form.stock }}
                         <small class="form-error text-danger">{{ form.stock.errors }}</small>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_stock_min">Alerta de Stock</label>
+                        {{ form.stock_min }}
+                        <small class="form-error text-danger">{{ form.stock_min.errors }}</small>
                     </div>
                 </div>
                 

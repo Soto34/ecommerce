@@ -14,11 +14,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>ID</th>
+                            <th>Codigo</th>
                             <th>Nombre</th>
                             <th>Categoría</th>
                             <th>Precio</th>
                             <th>Stock</th>
+                            <th>Alerta de Stock</th>
                             <th>Imagen</th>
                             <th>Acciones</th>
                         </tr>
@@ -26,11 +27,12 @@
                     <tbody>
                         {% for product in products %}
                         <tr>
-                            <td>{{ product.id }}</td>
-                            <td>{{ product.name }}</td>
+                            <td>{{ product.codigo  }}</td>
+                            <td>{{ product.name}}</td>
                             <td>{{ product.category.name|default:"-" }}</td>
                             <td>${{ product.price }}</td>
                             <td>{{ product.stock }}</td>
+                            <td>{{ product.stock_min }}</td>
                             <td>
                                 {% if product.image %}
                                 <img src="{{ product.image.url }}" alt="{{ product.name }}" width="50">
