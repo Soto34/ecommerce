@@ -35,8 +35,12 @@ def add_to_cart(request, product_id):
                 'image': product.image.url if product.image else None
             }
 
+        # Guardar el total en la sesión
+        car_total = sum(item['price']* item['quantity'] for item in cart.values())
         request.session['cart'] = cart
+        request.session['cart_total'] = car_total
         request.session.modified = True
+
         messages.success(request, f"{product.name} added to cart!")
 
     return redirect(request.META.get('HTTP_REFERER', 'catalog'))
