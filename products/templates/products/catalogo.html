@@ -18,7 +18,7 @@
         {% for product in products %}
             <div class="product-card">
                 {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" class="product-image">
                 {% else %}
                     <img src="{% static 'img/placeholder-product.jpg' %}" 
                          alt="Imagen no disponible" 
@@ -63,13 +63,5 @@
         {% endif %}
     </div>
     {% endif %}
-</div>
-
-<!-- Debug de imágenes (temporal) -->
-<div style="display: none;">
-    {% for product in products %}
-        {{ product.image.url }}<br>
-        {{ product.image.path }}<br>
-    {% endfor %}
 </div>
 {% endblock %}

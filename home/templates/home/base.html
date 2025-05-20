@@ -107,7 +107,14 @@
                                 {% endif %}
                                 
                                 <div class="d-flex justify-content-between mt-3 mb-2">
-                                    <strong>Total:</strong>
+                                  {% else %}
+                                <div class="text-center py-3">
+                                    <i class="fas fa-shopping-cart fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted">Tu carrito está vacío</p>
+                                    <a href="{% url 'catalogo' %}" class="btn btn-sm btn-primary">Ir al catálogo</a>
+                                </div>
+                            {% endif %}
+                               <strong>Total:</strong>
                                     <strong>
                                         ${% if user.is_authenticated and user.cart %}{{ user.cart.total|floatformat:2 }}{% else %}{{ request.session.cart_total|default:0|floatformat:2 }}{% endif %}
                                     </strong>
@@ -117,14 +124,7 @@
                                     <a href="{% url 'cart_view' %}" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
                                     <a href="#" class="btn btn-sm btn-success">Pagar</a>
                                 </div>
-                            {% else %}
-                                <div class="text-center py-3">
-                                    <i class="fas fa-shopping-cart fa-2x text-muted mb-3"></i>
-                                    <p class="text-muted">Tu carrito está vacío</p>
-                                    <a href="{% url 'catalogo' %}" class="btn btn-sm btn-primary">Ir al catálogo</a>
-                                </div>
-                            {% endif %}
-                        </div>
+                       </div>
                     </div>
                 </div>
                 

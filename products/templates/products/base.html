@@ -1,67 +1,67 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Gestión de Productos{% endblock %}</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'products/css/dashboard.css' %}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
-    {% block extra_css %}{% endblock %}
-</head>
-<body>
-    <div class="dashboard">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="logo">
-                <i class="fas fa-store"></i>
-                <span>Tienda</span>
+    {% load static %}
+    <!DOCTYPE html>
+    <html lang="es">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}Gestión de Productos{% endblock %}</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link rel="stylesheet" href="{% static 'products/css/dashboard.css' %}">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+        {% block extra_css %}{% endblock %}
+    </head>
+    <body>
+        <div class="dashboard">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="logo">
+                    <i class="fas fa-store"></i>
+                    <span>Tienda</span>
+                </div>
+                <nav>
+                    <ul>
+                        <li {% if request.resolver_match.url_name == 'products_list' %}class="active"{% endif %}>
+                            <a href="{% url 'products_list' %}"><i class="fas fa-boxes"></i> Productos</a>
+                        </li>
+                        <li {% if request.resolver_match.url_name == 'categories_list' %}class="active"{% endif %}>
+                            <a href="{% url 'categories_list' %}"><i class="fas fa-tags"></i> Categorías</a>
+                        </li>
+                    </ul>
+                </nav>
             </div>
-            <nav>
-                <ul>
-                    <li {% if request.resolver_match.url_name == 'products_list' %}class="active"{% endif %}>
-                        <a href="{% url 'products_list' %}"><i class="fas fa-boxes"></i> Productos</a>
-                    </li>
-                    <li {% if request.resolver_match.url_name == 'categories_list' %}class="active"{% endif %}>
-                        <a href="{% url 'categories_list' %}"><i class="fas fa-tags"></i> Categorías</a>
-                    </li>
-                </ul>
-            </nav>
+
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="content">
+                    {% block content %}{% endblock %}
+                </div>
+            </div>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="content">
-                {% block content %}{% endblock %}
-            </div>
-        </div>
-    </div>
 
-
-    
-    <!-- Mensajes y Confirmaciones -->
-    <script>
-        // Mostrar mensajes de Django
-        document.addEventListener('DOMContentLoaded', function() {
-            {% for message in messages %}
-            Swal.fire({
-                title: '{{ message.tags|title }}',
-                text: '{{ message|escapejs }}',
-                icon: '{{ message.tags }}',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 5000,
-                timerProgressBar: true,
-            });
-            {% endfor %}
-        });
-
-    </script>
         
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="{% static 'products/js/dashboard.js' %}"></script>
-    {% block extra_js %}{% endblock %}
-</body>
-</html>
+        <!-- Mensajes y Confirmaciones -->
+        <script>
+            // Mostrar mensajes de Django
+            document.addEventListener('DOMContentLoaded', function() {
+                {% for message in messages %}
+                Swal.fire({
+                    title: '{{ message.tags|title }}',
+                    text: '{{ message|escapejs }}',
+                    icon: '{{ message.tags }}',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 5000,
+                    timerProgressBar: true,
+                });
+                {% endfor %}
+            });
+
+        </script>
+            
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        <script src="{% static 'products/js/dashboard.js' %}"></script>
+        {% block extra_js %}{% endblock %}
+    </body>
+    </html>

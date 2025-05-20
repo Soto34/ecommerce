@@ -1,74 +1,55 @@
+{% extends 'home/base.html' %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Detalle de Producto</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'products/css/details.css' %}">
-</head>
-<body>
-    <!-- Navbar -->
-    <nav class="admin-navbar">
-        <div class="container">
-            <a href="{% url 'home' %}" class="logo">
-                <svg class="logo-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 11V13H21V11H3Z" fill="currentColor"/>
-                    <path d="M13 3V21H11V3H13Z" fill="currentColor"/>
-                    <path d="M7.05025 5.63605L5.63604 7.05026L16.9497 18.364L18.364 16.9498L7.05025 5.63605Z" fill="currentColor"/>
-                    <path d="M16.9497 5.63605L5.63604 16.9498L7.05025 18.364L18.364 7.05026L16.9497 5.63605Z" fill="currentColor"/>
-                </svg>
-                Descripción
-            </a>
-        </div>
-    </nav>
-    <!-- Contenido principal -->
-    <main class="admin-container">
-        <div class="product-detail">
-            <div class="product-gallery">
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" class="main-image">
-                <div class="thumbnail-container">
-                    
-                </div>
-            </div>
-            
-    
-            <div class="product-info">
-                <div>
-                    <span class="product-brand">{{ product.category }}</span>
-                    <h1 class="product-title">{{ product.name }}</h1>
-                </div>
-    
-                <div class="product-price-container">
-                    <span class="current-price">${{ product.price }}</span>
-                </div>
-    
-                <p class="product-description">
-                    {{ product.description }}
-                </p>
-    
-                <div class="quantity-control">
-                    <span class="quantity-title">Cantidad:</span>
-                    <div class="quantity-selector">
-                        <button class="quantity-btn">-</button>
-                        <input type="number" value="1" min="1" class="quantity-input">
-                        <button class="quantity-btn">+</button>
-                    </div>
-                </div>
-    
-                <div class="product-actions">
-                    <button class="btn btn-primary">
-                        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.70711 15.2929C4.07714 15.9229 4.52331 17 5.41421 17H17M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM9 19C9 20.1046 8.10457 21 7 21C5.89543 21 5 20.1046 5 19C5 17.8954 5.89543 17 7 17C8.10457 17 9 17.8954 9 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Añadir al carrito
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
-    
 
-</body>
-</html>
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'products/css/details.css' %}">
+
+<main class="admin-container">
+    <div class="product-detail">
+        <div class="product-gallery">
+            {% if product.image %}
+                <img src="{{ product.image }}" alt="{{ product.name }}" class="main-image">
+            {% else %}
+                <img src="{% static 'img/placeholder-product.jpg' %}" alt="Imagen no disponible" class="main-image">
+            {% endif %}
+        </div>
+
+        <div class="product-info">
+            <div>
+                <span class="product-brand">Categoría: {{ product.category.name }}</span>
+                <h1 class="product-title">{{ product.name }}</h1>
+            </div>
+
+            <div class="product-price-container">
+                <span class="current-price">${{ product.price }}</span>
+            </div>
+
+            <p class="product-description">
+                {{ product.description }}
+            </p>
+
+            <div class="quantity-control">
+                <span class="quantity-title">Cantidad:</span>
+                <div class="quantity-selector">
+                    <button class="quantity-btn">-</button>
+                    <input type="number" value="1" min="1" class="quantity-input">
+                    <button class="quantity-btn">+</button>
+                </div>
+            </div>
+
+            <div class="product-actions">
+                <button class="btn btn-primary">
+                    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 3H5L5.4 5M7 13H17L21 5H5.4M7 13L5.4 5M7 13L4.70711 15.2929C4.07714 15.9229 4.52331 17 5.41421 17H17M17 17C15.8954 17 15 17.8954 15 19C15 20.1046 15.8954 21 17 21C18.1046 21 19 20.1046 19 19C19 17.8954 18.1046 17 17 17ZM9 19C9 20.1046 8.10457 21 7 21C5.89543 21 5 20.1046 5 19C5 17.8954 5.89543 17 7 17C8.10457 17 9 17.8954 9 19Z"
+                              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Añadir al carrito
+                </button>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
