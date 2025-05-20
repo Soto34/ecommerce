@@ -11,7 +11,7 @@
 <body>
     <div class="container">
         <div class="login-section">
-            <form action="{% url 'login' %}" method="post">
+            <form action="{% url 'user:login' %}" method="post">
                 {% csrf_token %}
                 <h2>Login</h2>
 
@@ -22,8 +22,8 @@
                 <input type="password" id="password" name="password" required>
 
                 <div class="form-footer">
-                    <a href="{% url 'register' %}">Register</a> |
-                    <a href="{% url 'recover' %}">Forgot Password?</a>
+                    <a href="{% url 'user:register' %}">Register</a> |
+                    <a href="{% url 'user:recover' %}">Forgot Password?</a>
                 </div>
 
                 <button type="submit">Log In</button>
