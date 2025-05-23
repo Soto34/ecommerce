@@ -23,26 +23,30 @@ def add_to_cart(request, product_id):
         messages.success(request, f"{product.name} added to cart!")
     else:
         cart = request.session.get('cart', {})
+        product_key = str(product.id)
 
-        if str(product.id) in cart:
-            cart[str(product.id)]['quantity'] += 1
+        if product_key in cart:
+            cart[product_key]['quantity'] += 1
         else:
-            cart[str(product.id)] = {
-                'product_id': product.id,
+            # Guardamos los datos EXACTAMENTE como en el carrito autenticado
+            cart[product_key] = {
+                'id': product.id,
                 'name': product.name,
                 'price': float(product.price),
                 'quantity': 1,
-                'image': product.image.url if product.image else None
+                'image_url': product.image.url if product.image else None,
+                'product': {  # Estructura similar al modelo Product
+                    'id': product.id,
+                    'name': product.name,
+                    'price': float(product.price),
+                    'image_url': product.image.url if product.image else None,
+                }
             }
 
-        # Guardar el total en la sesión
-        car_total = sum(item['price']* item['quantity'] for item in cart.values())
         request.session['cart'] = cart
-        request.session['cart_total'] = car_total
         request.session.modified = True
 
-        messages.success(request, f"{product.name} added to cart!")
-
+    messages.success(request, f"{product.name} añadido al carrito!")
     return redirect(request.META.get('HTTP_REFERER', 'catalog'))
 
 @login_required

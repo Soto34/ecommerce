@@ -1,5 +1,10 @@
 from django import forms
 from .models import Product, Category
+import requests
+from django.core.exceptions import ValidationError
+
+API_URL = "http://127.0.0.1:8003/products/"
+
 
 class ProductForm(forms.ModelForm):
     class Meta:
@@ -18,6 +23,9 @@ class ProductForm(forms.ModelForm):
             'category': 'Categoría',
             'image': 'Imagen'
         }
+
+    
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:

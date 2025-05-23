@@ -7,24 +7,55 @@ from .models import Product, Category
 from .forms import ProductForm, CategoryForm
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 import requests
-import os
 import uuid
+import os
+from django.conf import settings
+from urllib.parse import urlparse
 
 
+API_URL = "http://127.0.0.1:8003/products/"
 
-API_URL = "http://127.0.0.1:8001/products/"
+def delete_product_image(image_url):
+    if not image_url:
+        return False
+    
+    try:
+        # Parsear la URL para obtener la ruta relativa
+        parsed_url = urlparse(image_url)
+        if not parsed_url.path.startswith('/media/'):
+            print(f"La URL de la imagen no está en el directorio media: {image_url}")
+            return False
+        
+        # Obtener la ruta relativa (ej: "products/filename.jpg")
+        relative_path = parsed_url.path[len('/media/'):]
+        
+        # Construir la ruta completa del sistema de archivos
+        full_path = os.path.join(settings.MEDIA_ROOT, relative_path)
+        
+        # Verificar y eliminar el archivo
+        if os.path.isfile(full_path):
+            os.remove(full_path)
+            print(f"Imagen eliminada correctamente: {full_path}")
+            return True
+        else:
+            print(f"El archivo no existe: {full_path}")
+            return False
+            
+    except Exception as e:
+        print(f"Error al eliminar imagen {image_url}: {str(e)}")
+        return False
+
 
 ### Vistas de Productos ###
 def products_list(request):
     try:
-        response = requests.get("http://127.0.0.1:8001/products")
+        response = requests.get(f"{API_URL.rstrip('/')}")  # Asegura URL correcta
         products = response.json() if response.status_code == 200 else []
     except Exception as e:
         products = []
         messages.error(request, f"No se pudo conectar a la API: {str(e)}")
     
     return render(request, 'products/products_list.html', {'products': products})
-
 
 def product_create(request):
     if request.method == 'POST':
@@ -33,14 +64,16 @@ def product_create(request):
             image_url = None
             image_file = request.FILES.get('image')
 
+            # Subir imagen al filesystem local
             if image_file:
-                import uuid, os
                 filename = f"{uuid.uuid4().hex}_{image_file.name}"
                 image_path = os.path.join('media/products', filename)
+                
                 with open(image_path, 'wb+') as dest:
                     for chunk in image_file.chunks():
                         dest.write(chunk)
-                image_url = request.build_absolute_uri(f"/media/products/{filename}")
+                
+                image_url = f"/media/products/{filename}"
 
             payload = {
                 "codigo": form.cleaned_data['codigo'],
@@ -54,37 +87,59 @@ def product_create(request):
             }
 
             try:
-                response = requests.post("http://127.0.0.1:8001/products", json=payload)
+                response = requests.post(f"{API_URL.rstrip('/')}", json=payload)
+                
                 if response.status_code in [200, 201]:
                     messages.success(request, 'Producto creado exitosamente')
                     return redirect('products_list')
                 else:
-                    messages.error(request, f"Error API: {response.json().get('detail')}")
+                    # Si falla la API, borramos la imagen subida
+                    if image_url:
+                        delete_product_image(image_url)
+                    messages.error(request, f"Error API: {response.json().get('detail', 'Error desconocido')}")
             except Exception as e:
+                if image_url:
+                    delete_product_image(image_url)
                 messages.error(request, f"Error de conexión: {str(e)}")
-
     else:
         form = ProductForm()
 
     return render(request, 'products/product_form.html', {'form': form})
 
 def product_update(request, pk):
-    # Obtener datos desde la API
+    # Obtener producto actual
     try:
         response = requests.get(f"{API_URL}{pk}")
         if response.status_code != 200:
-            messages.error(request, "Producto no encontrado en la API")
+            messages.error(request, "Producto no encontrado")
             return redirect('products_list')
         product_data = response.json()
     except Exception as e:
         messages.error(request, f"Error al conectar con la API: {str(e)}")
         return redirect('products_list')
 
-    # Si es POST: procesar formulario
     if request.method == 'POST':
         form = ProductForm(request.POST, request.FILES)
-
         if form.is_valid():
+            new_image_url = product_data['image']
+            new_image_file = request.FILES.get('image')
+
+            # Procesar nueva imagen si se subió
+            if new_image_file:
+                # Eliminar imagen anterior si existía
+                if product_data['image']:
+                    delete_product_image(product_data['image'])
+
+                # Guardar nueva imagen
+                filename = f"{uuid.uuid4().hex}_{new_image_file.name}"
+                image_path = os.path.join('media/products', filename)
+                
+                with open(image_path, 'wb+') as dest:
+                    for chunk in new_image_file.chunks():
+                        dest.write(chunk)
+                
+                new_image_url = f"/media/products/{filename}"
+
             payload = {
                 "codigo": form.cleaned_data['codigo'],
                 "name": form.cleaned_data['name'],
@@ -92,28 +147,29 @@ def product_update(request, pk):
                 "price": int(form.cleaned_data['price']),
                 "stock": int(form.cleaned_data['stock']),
                 "stock_min": int(form.cleaned_data['stock_min']),
-                "image": product_data['image'],  # no se cambia desde aquí
+                "image": new_image_url,
                 "category_id": form.cleaned_data['category'].id
             }
 
             try:
-                put_response = requests.put(f"{API_URL}{pk}", json=payload)
-                if put_response.status_code == 200:
+                response = requests.put(f"{API_URL}{pk}", json=payload)
+                if response.status_code == 200:
                     messages.success(request, "Producto actualizado correctamente")
                     return redirect('products_list')
-                elif put_response.status_code == 400:
-                    error = put_response.json().get("detail", "Error al actualizar")
-                    messages.error(request, f"Error: {error}")
                 else:
-                    messages.error(request, f"Error inesperado ({put_response.status_code})")
+                    # Si falla la actualización, borramos la nueva imagen si se subió
+                    if new_image_file and new_image_url != product_data['image']:
+                        delete_product_image(new_image_url)
+                    messages.error(request, f"Error: {response.json().get('detail', 'Error desconocido')}")
             except Exception as e:
+                if new_image_file and new_image_url != product_data['image']:
+                    delete_product_image(new_image_url)
                 messages.error(request, f"Error al conectar con la API: {str(e)}")
         else:
             messages.error(request, "Formulario inválido")
-    
-    # Si es GET: mostrar formulario con datos precargados
+
     else:
-        # Obtener categoría existente para precargar correctamente
+        # Precargar formulario con datos existentes
         try:
             category = Category.objects.get(id=product_data["category_id"])
         except Category.DoesNotExist:
@@ -139,18 +195,34 @@ def product_update(request, pk):
 def product_delete(request, pk):
     if request.method == 'POST':
         try:
-            response = requests.delete(f"http://127.0.0.1:8001/products/{pk}")
-            if response.status_code == 200:
+            # 1. Obtener el producto para saber si tiene imagen
+            get_response = requests.get(f"{API_URL}{pk}")
+            if get_response.status_code != 200:
+                messages.error(request, "Producto no encontrado")
+                return redirect('products_list')
+            
+            product_data = get_response.json()
+            
+            # 2. Eliminar la imagen primero si existe
+            if product_data.get('image'):
+                if not delete_product_image(product_data['image']):
+                    messages.warning(request, 'Producto eliminado pero no se pudo borrar la imagen')
+            
+            # 3. Eliminar el producto de la API
+            delete_response = requests.delete(f"{API_URL}{pk}")
+            
+            if delete_response.status_code == 200:
                 messages.success(request, 'Producto eliminado correctamente')
             else:
-                messages.error(request, f"Error: {response.json().get('detail')}")
+                messages.error(request, f"Error al eliminar producto: {delete_response.json().get('detail', 'Error desconocido')}")
+                
+        except requests.exceptions.RequestException as e:
+            messages.error(request, f"Error de conexión con la API: {str(e)}")
         except Exception as e:
-            messages.error(request, f"Error de conexión: {str(e)}")
+            messages.error(request, f"Error inesperado: {str(e)}")
 
     return redirect('products_list')
 
-
-    
 
 ### Vistas de Categorías ###
 def categories_list(request):
@@ -221,7 +293,7 @@ def category_delete(request, pk):
 # Catalogo
 def catalogo(request):
     try:
-        response = requests.get("http://127.0.0.1:8001/products")
+        response = requests.get("http://127.0.0.1:8003/products")
         if response.status_code == 200:
             product_list = response.json()
         else:
@@ -242,7 +314,7 @@ def catalogo(request):
 
 def detail(request, pk):
     try:
-        response = requests.get(f"http://127.0.0.1:8001/products/{pk}")
+        response = requests.get(f"http://127.0.0.1:8003/products/{pk}")
         if response.status_code == 200:
             product = response.json()
         else:

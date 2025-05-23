@@ -74,7 +74,7 @@
                                     {% for item in user.cart.items.all %}
                                     <div class="cart-item d-flex align-items-center mb-3 pb-2 border-bottom">
                                         <div class="flex-shrink-0">
-                                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
+                                            <img src="{{ item.product.image }}" alt="{{ item.product.name }}" 
                                                 class="rounded" 
                                                 style="width: 60px; height: 60px; object-fit: cover;">
                                         </div>

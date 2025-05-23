@@ -8,7 +8,7 @@ class Category(models.Model):
         return self.name
     
 class Product(models.Model):
-    codigo = models.CharField(max_length=255, unique=True)
+    codigo = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
     description = models.TextField()
     price = models.IntegerField()

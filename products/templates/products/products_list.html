@@ -35,7 +35,7 @@
                             <td>{{ product.stock_min }}</td>
                             <td>
                                 {% if product.image %}
-                                <img src="{{ product.image.url }}" alt="{{ product.name }}" width="50">
+                                    <img src="{{ product.image }}" alt="{{ product.name }}" width="50">
                                 {% else %}
                                 <span class="text-muted">Sin imagen</span>
                                 {% endif %}
