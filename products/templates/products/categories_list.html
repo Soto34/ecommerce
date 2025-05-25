@@ -1,5 +1,4 @@
 {% extends "products/base.html" %}
-
 {% block content %}
 <div class="content">
     <div class="card">
@@ -16,32 +15,27 @@
                         <tr>
                             <th>ID</th>
                             <th>Nombre</th>
-                            <th>Productos</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for category in categories %}
-                        <tr>
+                        <tr id="category-row-{{ category.id }}">
                             <td>{{ category.id }}</td>
                             <td>{{ category.name }}</td>
-                            <td>{{ category.product_count }}</td>
                             <td class="actions">
                                 <a href="{% url 'category_update' category.id %}" class="btn btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                
-                                <a onclick="confirmDeleteCategory('{% url 'category_delete' category.id %}')">
-                                    <button type="button" class="btn btn-sm btn-danger">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </a>
-                                
+                                <button type="button" class="btn btn-sm btn-danger" 
+                                    onclick='confirmDeleteCategory({{ category.id }})'>
+                                    <i class="fas fa-trash"></i>
+                                </button>
                             </td>
                         </tr>
                         {% empty %}
                         <tr>
-                            <td colspan="4" class="text-center">No se encontraron categorías</td>
+                            <td colspan="3" class="text-center">No se encontraron categorías</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -52,7 +46,6 @@
                     {% if categories.has_previous %}
                         <a href="?page={{ categories.previous_page_number }}" class="page-link">&laquo;</a>
                     {% endif %}
-
                     {% for num in categories.paginator.page_range %}
                         {% if categories.number == num %}
                             <a href="?page={{ num }}" class="page-link active">{{ num }}</a>
@@ -60,7 +53,6 @@
                             <a href="?page={{ num }}" class="page-link">{{ num }}</a>
                         {% endif %}
                     {% endfor %}
-
                     {% if categories.has_next %}
                         <a href="?page={{ categories.next_page_number }}" class="page-link">&raquo;</a>
                     {% endif %}
@@ -71,8 +63,9 @@
 </div>
 
 <script>
-    // Función específica para eliminar categorías
-    function confirmDeleteCategory(url) {
+    const apiBaseUrl = 'http://localhost:3001/categories/';  // <-- Aquí tu API Express
+
+    function confirmDeleteCategory(categoryId) {
         Swal.fire({
             title: '¿Eliminar categoría?',
             text: "¡Esta acción no se puede revertir!",
@@ -84,21 +77,44 @@
             cancelButtonText: 'Cancelar'
         }).then((result) => {
             if (result.isConfirmed) {
-                // Crear formulario dinámico para enviar POST
-                const form = document.createElement('form');
-                form.method = 'POST';
-                form.action = url;
-                
-                // Añadir CSRF token
-                const csrf = document.createElement('input');
-                csrf.type = 'hidden';
-                csrf.name = 'csrfmiddlewaretoken';
-                csrf.value = '{{ csrf_token }}';
-                form.appendChild(csrf);
-                
-                document.body.appendChild(form);
-                form.submit();
+                deleteCategory(categoryId);
             }
+        });
+    }
+
+    function deleteCategory(categoryId) {
+        fetch(apiBaseUrl + categoryId, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(async response => {
+            if (response.ok) {
+                // Eliminar fila de la tabla
+                const row = document.getElementById(`category-row-${categoryId}`);
+                if(row) row.remove();
+
+                Swal.fire(
+                    '¡Eliminado!',
+                    'La categoría fue eliminada correctamente.',
+                    'success'
+                );
+            } else {
+                const data = await response.json();
+                Swal.fire(
+                    'Error',
+                    data.detail || 'Error al eliminar la categoría',
+                    'error'
+                );
+            }
+        })
+        .catch(error => {
+            Swal.fire(
+                'Error',
+                'No se pudo conectar con el servidor: ' + error,
+                'error'
+            );
         });
     }
 </script>

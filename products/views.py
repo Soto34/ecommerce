@@ -14,6 +14,7 @@ from urllib.parse import urlparse
 
 
 API_URL = "http://127.0.0.1:8003/products/"
+API_BASE_URL = "http://localhost:3001/categories"
 
 def delete_product_image(image_url):
     if not image_url:
@@ -226,13 +227,16 @@ def product_delete(request, pk):
 
 ### Vistas de Categorías ###
 def categories_list(request):
-    categories = Category.objects.annotate(product_count=Count('product'))
+    try:
+        response = requests.get(API_BASE_URL)
+        response.raise_for_status()
+        categories_data = response.json()
+    except requests.RequestException:
+        messages.error(request, "No se pudieron obtener las categorías desde la API.")
+        categories_data = []
 
-    if not categories.exists():
-        messages.info(request, 'No hay categorías registradas')
-
-    # Paginación de 10 categorías por página
-    paginator = Paginator(categories, 10)
+    # Paginación
+    paginator = Paginator(categories_data, 10)
     page = request.GET.get('page')
 
     try:
@@ -244,54 +248,35 @@ def categories_list(request):
 
     return render(request, 'products/categories_list.html', {'categories': categories})
 
+
 def category_create(request):
-    if request.method == 'POST':
-        form = CategoryForm(request.POST)
-        if form.is_valid():
-            category = form.save()
-            messages.success(request, f'Categoría "{category.name}" creada')
-            return redirect('categories_list')
-        
-        for field, errors in form.errors.items():
-            for error in errors:
-                messages.error(request, f"{field}: {error}")
-    
-    else:
-        form = CategoryForm()
-    
-    return render(request, 'products/category_form.html', {'form': form})
+    return render(request, 'products/category_form.html')
+
 
 def category_update(request, pk):
-    category = get_object_or_404(Category, pk=pk)
-    if request.method == 'POST':
-        form = CategoryForm(request.POST, instance=category)
-        if form.is_valid():
-            category = form.save()
-            messages.success(request, f'Categoría "{category.name}" actualizada')
-            return redirect('categories_list')
-        
-        for field, errors in form.errors.items():
-            for error in errors:
-                messages.error(request, f"{field}: {error}")
-    
-    else:
-        form = CategoryForm(instance=category)
-    
-    return render(request, 'products/category_form.html', {'form': form})
+    return render(request, 'products/category_form.html', {
+        'category_id': pk
+    })
 
 def category_delete(request, pk):
-    category = get_object_or_404(Category, pk=pk)
     if request.method == 'POST':
-        if category.product_set.exists():
-            messages.error(request, 'No se puede eliminar: tiene productos asociados')
-        else:
-            category.delete()
-            messages.success(request, 'Categoría eliminada')
+        try:
+            response = requests.delete(f"{API_BASE_URL}/{pk}")
+            if response.status_code == 404:
+                messages.error(request, "No se encontró la categoría.")
+            elif response.status_code in [200, 204]:
+                messages.success(request, "Categoría eliminada correctamente.")
+            else:
+                messages.error(request, f"Error al eliminar la categoría. Código: {response.status_code}")
+        except requests.RequestException:
+            messages.error(request, "Error al eliminar la categoría en la API.")
+    else:
+        messages.error(request, "Método no permitido.")
     return redirect('categories_list')
         
     
-# Catalogo
 def catalogo(request):
+    # Obtener productos desde la API
     try:
         response = requests.get("http://127.0.0.1:8003/products")
         if response.status_code == 200:
@@ -303,15 +288,39 @@ def catalogo(request):
         messages.error(request, f"Error de conexión con la API: {str(e)}")
         product_list = []
 
-    # Paginación manual en Django (con la lista traída de la API)
-    paginator = Paginator(product_list, 6)  # 6 productos por página
+    # Extraer categorías únicas desde los productos
+    categories_dict = {}
+    for p in product_list:
+        # Asumamos que cada producto tiene 'category' con un dict {id, name} o bien 'category_id' y 'category_name'
+        # Ajusta según cómo viene en tu JSON
+        cat_id = p.get('category', {}).get('id') or p.get('category_id')
+        cat_name = p.get('category', {}).get('name') or p.get('category_name')
+        if cat_id and cat_name:
+            categories_dict[cat_id] = cat_name
+
+    # Convertir a lista de dicts ordenada por nombre
+    categories = sorted(
+        [{'id': k, 'name': v} for k, v in categories_dict.items()],
+        key=lambda x: x['name']
+    )
+
+    selected_category = request.GET.get('category', '')
+
+    # Filtrar productos si hay categoría seleccionada
+    if selected_category != "":
+        product_list = [p for p in product_list if str(p.get('category', {}).get('id', p.get('category_id'))) == selected_category]
+
+    # Paginación
+    paginator = Paginator(product_list, 6)
     page = request.GET.get('page')
     products = paginator.get_page(page)
 
-    return render(request, 'products/catalogo.html', {'products': products})
-
-
-
+    context = {
+        'products': products,
+        'categories': categories,
+        'selected_category': selected_category,
+    }
+    return render(request, 'products/catalogo.html', context)
 def detail(request, pk):
     try:
         response = requests.get(f"http://127.0.0.1:8003/products/{pk}")
