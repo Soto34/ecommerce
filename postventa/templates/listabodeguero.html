@@ -1,0 +1,169 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lista de Pedidos - Bodeguero</title>
+
+    <!-- Favicon -->
+    <link rel="shortcut icon" type="image/png" href="{% static 'assets/img/favicon.png' %}" />
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet" />
+
+    <!-- CSS Libraries -->
+    <link rel="stylesheet" href="{% static 'assets/css/all.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/bootstrap/css/bootstrap.min.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/main.css' %}" />
+    <link rel="stylesheet" href="{% static 'assets/css/responsive.css' %}" />
+</head>
+<body>
+
+<!-- Header -->
+<div class="top-header-area" id="sticker">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12 text-center">
+                <div class="main-menu-wrap">
+                    <div class="site-logo">
+                        <a href="index_2.html">
+                            <img src="{% static 'assets/img/logo.png' %}" alt="Logo" />
+                        </a>
+                    </div>
+                    <nav class="main-menu">
+                        <ul>
+                            <li><a href="#">Salir</a></li>
+                        </ul>
+                    </nav>
+                    <div class="mobile-menu"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Header -->
+
+<!-- Breadcrumb -->
+<div class="breadcrumb-section breadcrumb-bg">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 text-center">
+                <div class="breadcrumb-text">
+                    <p>Panel del Bodeguero</p>
+                    <h1>Lista de Pedidos</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Breadcrumb -->
+
+<!-- Ticket Section -->
+<div class="ticket-section mt-150 mb-150">
+    <div class="container">
+        <div class="row">
+            {% for ticket in tickets %}
+            <div class="col-md-6 col-lg-6 mb-4">
+                <div class="card p-4 shadow-sm text-center">
+                    <h5>Ticket #{{ ticket.id }}</h5>
+                    <a href="{% url 'detalle_lista' ticket.id %}" class="btn btn-warning mt-3">Revisar</a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No hay tickets disponibles.</p>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        <div class="row">
+            <div class="col-12 text-center mt-4">
+                <nav>
+                    <ul class="pagination justify-content-center">
+                        <li class="page-item"><a class="page-link" href="#">Anterior</a></li>
+                        <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                        <li class="page-item"><a class="page-link" href="#">2</a></li>
+                        <li class="page-item"><a class="page-link" href="#">3</a></li>
+                        <li class="page-item"><a class="page-link" href="#">Siguiente</a></li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Ticket Section -->
+
+<!-- Footer -->
+<div class="footer-area">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-box about-widget">
+                    <h2 class="widget-title">About us</h2>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-box get-in-touch">
+                    <h2 class="widget-title">Get in Touch</h2>
+                    <ul>
+                        <li>123 Example St.</li>
+                        <li>support@example.com</li>
+                        <li>+00 111 222 3333</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-box pages">
+                    <h2 class="widget-title">Pages</h2>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="shop.html">Shop</a></li>
+                        <li><a href="contact.html">Contact</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col-lg-3 col-md-6">
+                <div class="footer-box subscribe">
+                    <h2 class="widget-title">Subscribe</h2>
+                    <p>Get updates via email.</p>
+                    <form action="index.html">
+                        <input type="email" placeholder="Email" />
+                        <button type="submit"><i class="fas fa-paper-plane"></i></button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Footer -->
+
+<!-- Copyright -->
+<div class="copyright">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-6 col-md-12">
+                <p>&copy; 2025 - Tu Empresa. Todos los derechos reservados.</p>
+            </div>
+            <div class="col-lg-6 text-right col-md-12">
+                <div class="social-icons">
+                    <ul>
+                        <li><a href="#"><i class="fab fa-facebook-f"></i></a></li>
+                        <li><a href="#"><i class="fab fa-twitter"></i></a></li>
+                        <li><a href="#"><i class="fab fa-instagram"></i></a></li>
+                        <li><a href="#"><i class="fab fa-linkedin"></i></a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- End Copyright -->
+
+<!-- JS Scripts -->
+<script src="{% static 'assets/js/jquery-1.11.3.min.js' %}"></script>
+<script src="{% static 'assets/bootstrap/js/bootstrap.min.js' %}"></script>
+<script src="{% static 'assets/js/main.js' %}"></script>
+</body>
+</html>
