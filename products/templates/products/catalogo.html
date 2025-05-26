@@ -14,21 +14,40 @@
         </p>
     </header>
 
+    <!-- Dropdown para seleccionar categoría -->
+    <div class="category-dropdown" style="margin-bottom: 20px; position: relative; display: inline-block;">
+        <button onclick="toggleDropdown()" class="btn btn-outline-primary">
+            {% if selected_category %}
+                {% for cat in categories %}
+                    {% if cat.id|stringformat:'s' == selected_category %}
+                        {{ cat.name }}
+                    {% endif %}
+                {% endfor %}
+            {% else %}
+                Todas las categorías
+            {% endif %}
+            ▼
+        </button>
+
+        <div id="dropdownMenu" class="dropdown-content" style="display:none; position:absolute; background:#fff; border:1px solid #ccc; min-width:180px; z-index:1000;">
+            <a href="{% url 'catalogo' %}">Todas las categorías</a>
+            {% for category in categories %}
+                <a href="?category={{ category.id }}">{{ category.name }}</a>
+            {% endfor %}
+        </div>
+    </div>
+
     <div class="product-grid">
         {% for product in products %}
             <div class="product-card">
                 {% if product.image %}
-                    <img src="{{ product.image.url }}" alt="{{ product.name }}" class="product-image">
+                    <img src="{{ product.image }}" alt="{{ product.name }}" class="product-image">
                 {% else %}
-                    <img src="{% static 'img/placeholder-product.jpg' %}" 
-                         alt="Imagen no disponible" 
-                         class="product-image">
+                    <img src="{% static 'img/placeholder-product.jpg' %}" alt="Imagen no disponible" class="product-image">
                 {% endif %}
                 <div class="product-info">
                     <h3 class="product-name">{{ product.name }}</h3>
-                    <div class="product-price">
-                        ${{ product.price }}
-                    </div>
+                    <div class="product-price">${{ product.price }}</div>
                     <div class="button-group">
                         <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
                             <i class="fas fa-cart-plus me-2"></i>Añadir al Carrito
@@ -47,29 +66,70 @@
     {% if products.has_other_pages %}
     <div class="pagination">
         {% if products.has_previous %}
-            <a href="?page={{ products.previous_page_number }}" class="page-link">&laquo;</a>
+            <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ products.previous_page_number }}" class="page-link">&laquo;</a>
         {% endif %}
 
         {% for num in products.paginator.page_range %}
             {% if products.number == num %}
-                <a href="?page={{ num }}" class="page-link active">{{ num }}</a>
+                <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ num }}" class="page-link active">{{ num }}</a>
             {% else %}
-                <a href="?page={{ num }}" class="page-link">{{ num }}</a>
+                <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ num }}" class="page-link">{{ num }}</a>
             {% endif %}
         {% endfor %}
 
         {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}" class="page-link">&raquo;</a>
+            <a href="?{% if selected_category %}category={{ selected_category }}&{% endif %}page={{ products.next_page_number }}" class="page-link">&raquo;</a>
         {% endif %}
     </div>
     {% endif %}
 </div>
 
-<!-- Debug de imágenes (temporal) -->
-<div style="display: none;">
-    {% for product in products %}
-        {{ product.image.url }}<br>
-        {{ product.image.path }}<br>
-    {% endfor %}
-</div>
+<style>
+.category-dropdown button {
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+.category-dropdown a {
+    display: block;
+    padding: 8px 12px;
+    color: #007bff;
+    text-decoration: none;
+}
+
+.category-dropdown a:hover {
+    background-color: #f0f0f0;
+}
+
+.pagination .page-link {
+    padding: 6px 12px;
+    margin: 2px;
+    border: 1px solid #007bff;
+    color: #007bff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.pagination .page-link.active {
+    background-color: #007bff;
+    color: white;
+}
+</style>
+
+<script>
+function toggleDropdown() {
+    const dropdown = document.getElementById('dropdownMenu');
+    dropdown.style.display = (dropdown.style.display === 'block') ? 'none' : 'block';
+}
+
+window.onclick = function(event) {
+    if (!event.target.matches('.category-dropdown button')) {
+        const dropdown = document.getElementById('dropdownMenu');
+        if (dropdown.style.display === 'block') {
+            dropdown.style.display = 'none';
+        }
+    }
+}
+</script>
 {% endblock %}

@@ -1,4 +1,25 @@
-# .gitignore
-
+# Ignorar entornos virtuales
+.env
 *.env
+.ennv
 *.ennv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Ignorar archivos pyc y cache de Python
+__pycache__/
+*.py[cod]
+
+# Ignorar archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de bases de datos locales, si usas SQLite
+*.sqlite3
+
+# Ignorar archivos de configuración de IDEs (opcional)
+.vscode/
+.idea/

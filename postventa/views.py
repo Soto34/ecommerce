@@ -33,7 +33,7 @@ def agregar_producto(request, ticket_id):
                 'total': ticket.total,
             })
 
-        url_api = f'http://localhost:8001/products/code/{codigo}'
+        url_api = f'http://localhost:8003/products/code/{codigo}'
         print(f"[DEBUG] Consultando API en: {url_api}")
 
         try:
@@ -133,6 +133,15 @@ def detalle_ticket_postventa(request, ticket_id):
     }
     # Renderizar con la plantilla correcta
     return render(request, 'detallehistorial.html', context)
+
+def finalizar_ticket(request, ticket_id):
+    if request.method == 'POST':
+        ticket = get_object_or_404(Ticket, id=ticket_id)
+        ticket.pedido_completado = True
+        ticket.save()
+        return redirect('detalle_lista', ticket_id=ticket_id)  # o a donde quieras redirigir después
+    # Si no es POST, redirige o muestra error
+    return redirect('detalle_lista', ticket_id=ticket_id)
 
 
 

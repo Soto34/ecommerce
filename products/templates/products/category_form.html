@@ -1,27 +1,27 @@
 {% extends "products/base.html" %}
 {% load static %}
 
-{% block title %}{% if category %}Editar{% else %}Nueva{% endif %} Categoría{% endblock %}
+{% block title %}{% if category_id %}Editar{% else %}Nueva{% endif %} Categoría{% endblock %}
 
 {% block content %}
 <div class="content">
     <div class="card">
         <div class="card-header">
-            <h2>{% if category %}Editar{% else %}Nueva{% endif %} Categoría</h2>
+            <h2>{% if category_id %}Editar{% else %}Nueva{% endif %} Categoría</h2>
             <a href="{% url 'categories_list' %}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Volver
             </a>
         </div>
         <div class="card-body">
-            <form id="category-form" method="post">
+            <form id="category-form">
                 {% csrf_token %}
-                
+
                 <div class="form-group">
-                    <label for="id_name">Nombre</label>
-                    {{ form.name }}
-                    <small class="form-error text-danger">{{ form.name.errors }}</small>
+                    <label for="name">Nombre</label>
+                    <input type="text" name="name" id="name" class="form-control">
+                    <small id="name-error" class="form-error text-danger"></small>
                 </div>
-                
+
                 <div class="form-footer">
                     <button type="submit" class="btn btn-primary">
                         <i class="fas fa-save"></i> Guardar
@@ -35,7 +35,68 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.getElementById('category-form');
+        const nameInput = document.getElementById('name');
+        const nameError = document.getElementById('name-error');
 
+        const categoryId = "{{ category_id|default:'' }}";
+        const apiBase = "http://localhost:3001/categories";
+
+        if (categoryId) {
+            fetch(`${apiBase}/${categoryId}`)
+                .then(res => res.json())
+                .then(data => {
+                    nameInput.value = data.name;
+                });
+        }
+
+        nameInput.addEventListener('input', () => {
+            nameError.textContent = '';
+            nameInput.classList.remove('is-invalid');
+        });
+
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            if (!nameInput.value.trim()) {
+                nameError.textContent = "El nombre es obligatorio";
+                nameInput.classList.add('is-invalid');
+                return;
+            }
+
+            const data = { name: nameInput.value.trim() };
+            const method = categoryId ? 'PUT' : 'POST';
+            const url = categoryId ? `${apiBase}/${categoryId}` : apiBase;
+
+            fetch(url, {
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(data)
+            })
+            .then(async res => {
+                if (res.ok) {
+                    window.location.href = "{% url 'categories_list' %}";
+                } else {
+                    try {
+                        const errorData = await res.json();
+                        nameError.textContent = errorData.name ? errorData.name[0] : 'Error desconocido';
+                    } catch {
+                        nameError.textContent = 'Error desconocido';
+                    }
+                    nameInput.classList.add('is-invalid');
+                }
+            })
+            .catch(error => {
+                nameError.textContent = "Error en la solicitud: " + error;
+                nameInput.classList.add('is-invalid');
+            });
+        });
+    });
+</script>
 
 <style>
 .is-invalid {

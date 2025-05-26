@@ -7,6 +7,8 @@ urlpatterns = [
 
     path('historial_postventa/', views.historial_postventa, name='historial_postventa'),
     path('historial_postventa/ticket/<int:ticket_id>/', views.detalle_ticket_postventa, name='detalle_ticket_postventa'),
+    path('postventa/<int:ticket_id>/finalizar/', views.finalizar_ticket, name='finalizar_ticket'),
+
 
 
     path('lista_bodeguero/', views.lista_bodeguero, name='lista_bodeguero'),
