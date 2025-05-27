@@ -51,7 +51,6 @@
             
             <div class="navbar-nav d-flex align-items-center">
                 <!--Carrito-->
-                
                 <div class="cart-icon dropdown">
                     <a href="#" class="nav-link" id="cartDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-shopping-cart fa-lg text-light"></i>
@@ -73,17 +72,21 @@
                                 {% for key, item_data in request.session.cart.items %}
                                 <div class="cart-item d-flex align-items-center mb-3 pb-2 border-bottom">
                                     <div class="flex-shrink-0">
-                                        {% if item_data.image and item_data.image.url %}
-                                        <img src="{{ item_data.image.url }}" alt="{{ item_data.name }}" 
-                                            class="rounded" 
-                                            style="width: 60px; height: 60px; object-fit: cover;"
-                                            onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'rounded bg-light d-flex align-items-center justify-content-center\' style=\'width: 60px; height: 60px;\'><i class=\'fas fa-image text-muted\'></i></div>';">
+                                        {% if item_data.image_url %}
+                                            <img src="{{ MEDIA_URL }}{{ item_data.image_url }}"
+                                                alt="{{ item_data.name }}"
+                                                class="rounded"
+                                                style="width: 60px; height: 60px; object-fit: cover;"
+                                                onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'rounded bg-light d-flex align-items-center justify-content-center\' style=\'width: 60px; height: 60px;\'><i class=\'fas fa-image text-muted\'></i></div>';"/>
                                         {% else %}
-                                        <div class="rounded bg-light d-flex align-items-center justify-content-center" 
-                                            style="width: 60px; height: 60px;">
-                                            <i class="fas fa-image text-muted"></i>
-                                        </div>
+                                            <div class="rounded bg-light d-flex align-items-center justify-content-center" 
+                                                style="width: 60px; height: 60px;">
+                                                <i class="fas fa-image text-muted"></i>
+                                            </div>
                                         {% endif %}
+
+
+
                                     </div>
                                     <div class="flex-grow-1 ms-3">
                                         <div class="d-flex justify-content-between">
@@ -101,7 +104,10 @@
                                 </div>
                                 
                                 <div class="d-grid gap-2">
-                                    <a href="{% url 'cart_view' %}" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
+                                    <a href="#" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
+                                    <button id="clear-cart-btn" class="btn btn-sm btn-outline-danger">
+                                        <i class="fas fa-trash me-1"></i> Vaciar Carrito
+                                    </button>
                                     <a href="#" class="btn btn-sm btn-success">Pagar</a>
                                 </div>
                             {% else %}
@@ -115,6 +121,7 @@
                     </div>
                 </div>
                 
+                            
                 {% if user.is_authenticated %}
                     <div class="dropdown">
                         <button class="btn btn-primary dropdown-toggle" type="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -222,5 +229,70 @@
             document.querySelector('.cart-count').textContent = count;
         }
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const clearCartBtn = document.getElementById('clear-cart-btn');
+
+            if (clearCartBtn) {
+                clearCartBtn.addEventListener('click', function (event) {
+                    event.preventDefault();
+
+                    fetch("{% url 'clear_cart_ajax' %}", {
+                        method: "POST",
+                        headers: {
+                            "X-CSRFToken": getCookie('csrftoken'),
+                            "Content-Type": "application/json"
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Limpiar el HTML del carrito visualmente
+                            const cartItemsContainer = document.querySelector('.cart-items-container');
+                            cartItemsContainer.innerHTML = `
+                                <div class="text-center py-3 empty-cart-message">
+                                    <i class="fas fa-shopping-cart fa-2x text-muted mb-3"></i>
+                                    <p class="text-muted">Tu carrito está vacío</p>
+                                    <a href="{% url 'catalogo' %}" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-store me-1"></i> Ir al catálogo
+                                    </a>
+                                </div>
+                            `;
+
+                            // Actualizar contador del carrito a 0
+                            const cartCount = document.querySelector('.cart-count');
+                            if (cartCount) {
+                                cartCount.textContent = '0';
+                            }
+                        } else {
+                            alert('Error al vaciar el carrito');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                    });
+                });
+            }
+
+            // Función auxiliar para obtener CSRF Token
+            function getCookie(name) {
+                let cookieValue = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const cookie = cookies[i].trim();
+                        // Coincide el nombre
+                        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        });
+</script>
+
+    
 </body>
 </html>

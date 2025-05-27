@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from products.models import Product
@@ -102,9 +103,11 @@ def update_cart(request, product_id):
     return redirect('cart_view')
 
 def clear_cart(request):
-    if 'cart' in request.session:
-        del request.session['cart']
-        request.session.modified = True
-        messages.success(request, "Carrito vaciado correctamente")
+    if request.method == 'POST':
+        if 'cart' in request.session:
+            del request.session['cart']
+            request.session.modified = True
+        return JsonResponse({'success': True, 'message': 'Carrito vacío'})
+
+    return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
     
-    return redirect('cart_view')
