@@ -1,0 +1,46 @@
+{% if request.session.cart %}
+    {% for key, item_data in request.session.cart.items %}
+    <div class="cart-item d-flex align-items-center mb-3 pb-2 border-bottom">
+        <div class="flex-shrink-0">
+            {% if item_data.image_url %}
+                <img src="{{ MEDIA_URL }}{{ item_data.image_url }}"
+                    alt="{{ item_data.name }}"
+                    class="rounded"
+                    style="width: 60px; height: 60px; object-fit: cover;"
+                    onerror="this.onerror=null;this.parentElement.innerHTML='<div class=\'rounded bg-light d-flex align-items-center justify-content-center\' style=\'width: 60px; height: 60px;\'><i class=\'fas fa-image text-muted\'></i></div>';"/>
+            {% else %}
+                <div class="rounded bg-light d-flex align-items-center justify-content-center" 
+                    style="width: 60px; height: 60px;">
+                    <i class="fas fa-image text-muted"></i>
+                </div>
+            {% endif %}
+        </div>
+        <div class="flex-grow-1 ms-3">
+            <div class="d-flex justify-content-between">
+                <h6 class="mb-0">{{ item_data.name|truncatechars:20 }}</h6>
+                <small class="text-muted">x{{ item_data.quantity }}</small>
+            </div>
+            <small class="text-success">${{ item_data.price|floatformat:2 }}</small>
+        </div>
+    </div>
+    {% endfor %}
+    
+    <div class="d-flex justify-content-between mt-3 mb-2">
+        <strong>Total:</strong>
+        <strong>${{ request.session.cart_total|floatformat:2 }}</strong>
+    </div>
+    
+    <div class="d-grid gap-2">
+        <a href="{% url 'cart_view' %}" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
+        <button id="clear-cart-btn" class="btn btn-sm btn-outline-danger">
+            <i class="fas fa-trash me-1"></i> Vaciar Carrito
+        </button>
+        <a href="#" class="btn btn-sm btn-success">Pagar</a>
+    </div>
+{% else %}
+    <div class="text-center py-3">
+        <i class="fas fa-shopping-cart fa-2x text-muted mb-3"></i>
+        <p class="text-muted">Tu carrito está vacío</p>
+        <a href="{% url 'catalogo' %}" class="btn btn-sm btn-primary">Ir al catálogo</a>
+    </div>
+{% endif %}

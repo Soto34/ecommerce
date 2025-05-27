@@ -2,7 +2,9 @@
 {% load static %}
 
 {% block content %}
-<div class="container py-5">
+<link rel="stylesheet" href="{% static 'cart/css/style_cart_view.css'%}">
+
+<div class="container py-5" >
     <div class="row">
         <div class="col-lg-12">
             <div class="card shadow-sm">
@@ -27,7 +29,7 @@
                             </thead>
                             <tbody>
                                 {% for item in items %}
-                                <tr>
+                                <tr data-product-id="{{ item.product.id }}" data-unit-price="{{ item.product.price }}">
                                     <td>
                                         <div class="d-flex align-items-center">
                                             <img src="{{ item.product.image.url }}" class="img-thumbnail rounded me-3" width="80" alt="{{ item.product.name }}">
@@ -37,30 +39,31 @@
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="text-end">${{ item.product.price }}</td>
+                                    <td class="text-end unit-price">${{ item.product.price }}</td>
                                     <td class="text-center">
-                                        <form method="post" action="{% url 'update_cart' item.product.id %}" class="d-flex justify-content-center">
-                                            {% csrf_token %}
-                                            <div class="input-group" style="max-width: 120px;">
-                                                <button class="btn btn-outline-secondary decrement-btn" type="button">
-                                                    <i class="bi bi-dash"></i>
-                                                </button>
-                                                <input type="number" name="quantity" value="{{ item.quantity }}" min="1" 
-                                                       class="form-control text-center quantity-input">
-                                                <button class="btn btn-outline-secondary increment-btn" type="button">
-                                                    <i class="bi bi-plus"></i>
-                                                </button>
-                                            </div>
-                                            <button type="submit" class="btn btn-link text-primary ms-2" title="Actualizar">
-                                                <i class="bi bi-arrow-clockwise"></i>
-                                            </button>
-                                        </form>
+                                        <span class="quantity-display">{{ item.quantity }}</span>
                                     </td>
-                                    <td class="text-end fw-bold">${{ item.subtotal }}</td>
+                                    <td class="text-end fw-bold subtotal">${{ item.subtotal }}</td>
                                     <td class="text-center">
-                                        <a href="{% url 'delete_from_cart' product_id %}" class="btn btn-outline-danger btn-sm" title="Eliminar">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
+                                        <div class="d-flex justify-content-center">
+                                            <form method="post" action="#" class="d-flex">
+                                                {% csrf_token %}
+                                                <div class="btn-group" role="group">
+                                                    <button class="btn btn-outline-secondary btn-sm decrement-btn" type="button">
+                                                        <i class="bi bi-dash"></i>
+                                                    </button>
+                                                    <button class="btn btn-outline-secondary btn-sm increment-btn" type="button">
+                                                        <i class="bi bi-plus"></i>
+                                                    </button>
+                                                    <button type="submit" class="btn btn-outline-primary btn-sm update-btn" title="Actualizar">
+                                                        <i class="bi bi-arrow-clockwise"></i>
+                                                    </button>
+                                                    <a href="#" class="btn btn-outline-danger btn-sm" title="Eliminar">
+                                                        <i class="bi bi-trash"></i>
+                                                    </a>
+                                                </div>
+                                            </form>
+                                        </div>
                                     </td>
                                 </tr>
                                 {% endfor %}
@@ -72,7 +75,7 @@
                         <div class="col-md-6">
                             <div class="card border-0 bg-light">
                                 <div class="card-body">
-                                    <h5 class="card-title">Código de Descuento</h5>
+                                    <h5 class="card-title">Descuento</h5>
                                     <form class="input-group">
                                         <input type="text" class="form-control" placeholder="Ingresa tu código">
                                         <button class="btn btn-primary" type="submit">Aplicar</button>
@@ -86,7 +89,7 @@
                                     <h5 class="card-title mb-3">Resumen del Pedido</h5>
                                     <div class="d-flex justify-content-between mb-2">
                                         <span>Subtotal:</span>
-                                        <span>${{ total }}</span>
+                                        <span class="cart-subtotal">${{ total }}</span>
                                     </div>
                                     <div class="d-flex justify-content-between mb-2">
                                         <span>Envío:</span>
@@ -95,7 +98,7 @@
                                     <hr>
                                     <div class="d-flex justify-content-between fw-bold fs-5">
                                         <span>Total:</span>
-                                        <span>${{ total }}</span>
+                                        <span class="cart-total">${{ total }}</span>
                                     </div>
                                     <div class="d-grid mt-3">
                                         <a href="#" class="btn btn-primary btn-lg">
@@ -118,9 +121,6 @@
                         </div>
                         <h4 class="mb-3">Tu carrito está vacío</h4>
                         <p class="text-muted mb-4">Parece que no has añadido ningún producto a tu carrito todavía.</p>
-                        <a href="{% url 'product_list' %}" class="btn btn-primary px-4">
-                            <i class="bi bi-shop me-2"></i> Ir a la tienda
-                        </a>
                     </div>
                     {% endif %}
                 </div>
@@ -129,38 +129,121 @@
     </div>
 </div>
 
-<style>
-    .quantity-input {
-        -moz-appearance: textfield;
-    }
-    .quantity-input::-webkit-outer-spin-button,
-    .quantity-input::-webkit-inner-spin-button {
-        -webkit-appearance: none;
-        margin: 0;
-    }
-    .decrement-btn, .increment-btn {
-        width: 38px;
-    }
-</style>
-
 <script>
-    // JavaScript para incrementar/decrementar la cantidad
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function() {
+    // Función para obtener el token CSRF
+    function getCSRFToken() {
+        return document.querySelector('[name=csrfmiddlewaretoken]').value;
+    }
+
+    // Función para actualizar el contador del navbar
+    function updateNavbarCart(count) {
+        const navbarCartCount = document.querySelector('.cart-count');
+        if (navbarCartCount) {
+            navbarCartCount.textContent = count;
+        }
+    }
+
+    // Función para actualizar el dropdown del carrito en el navbar
+    async function refreshNavbarCart() {
+        try {
+            const response = await fetch("{% url 'cart_dropdown_content' %}");
+            const html = await response.text();
+            const dropdownContent = document.querySelector('.cart-items-container');
+            if (dropdownContent) {
+                dropdownContent.innerHTML = html;
+            }
+        } catch (error) {
+            console.error('Error al actualizar el dropdown:', error);
+        }
+    }
+
+    // Función para manejar las acciones del carrito
+    async function handleCartAction(productId, action) {
+        try {
+            const response = await fetch("{% url 'update_cart_item' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": getCSRFToken(),
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    product_id: productId,
+                    action: action
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                // Actualizar la vista actual del carrito
+                if (action === 'remove') {
+                    document.querySelector(`tr[data-product-id="${productId}"]`).remove();
+                    
+                    // Si no quedan items, recargar la página
+                    if (data.total_items === 0) {
+                        location.reload();
+                    }
+                } else {
+                    const row = document.querySelector(`tr[data-product-id="${productId}"]`);
+                    if (row) {
+                        const quantityDisplay = row.querySelector('.quantity-display');
+                        const subtotalElement = row.querySelector('.subtotal');
+                        const unitPrice = parseFloat(row.dataset.unitPrice);
+                        
+                        quantityDisplay.textContent = data.items[productId].quantity;
+                        subtotalElement.textContent = `$${(unitPrice * data.items[productId].quantity).toFixed(2)}`;
+                    }
+                }
+
+                // Actualizar los totales
+                document.querySelector('.cart-subtotal').textContent = `$${data.cart_total.toFixed(2)}`;
+                document.querySelector('.cart-total').textContent = `$${data.cart_total.toFixed(2)}`;
+
+                // Actualizar el navbar
+                updateNavbarCart(data.total_items);
+                refreshNavbarCart();
+            } else {
+                alert(data.error || 'Error al actualizar el carrito');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error de conexión');
+        }
+    }
+
+    // Asignar eventos a los botones
+    function assignCartEvents() {
+        // Incrementar cantidad
+        document.querySelectorAll('.increment-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const productId = this.closest('tr').dataset.productId;
+                handleCartAction(productId, 'increment');
+            });
+        });
+
+        // Decrementar cantidad
         document.querySelectorAll('.decrement-btn').forEach(btn => {
             btn.addEventListener('click', function() {
-                const input = this.parentNode.querySelector('.quantity-input');
-                if (parseInt(input.value) > 1) {
-                    input.value = parseInt(input.value) - 1;
+                const productId = this.closest('tr').dataset.productId;
+                handleCartAction(productId, 'decrement');
+            });
+        });
+
+        // Eliminar producto
+        document.querySelectorAll('.btn-outline-danger').forEach(btn => {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                const productId = this.closest('tr').dataset.productId;
+                if (confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
+                    handleCartAction(productId, 'remove');
                 }
             });
         });
-        
-        document.querySelectorAll('.increment-btn').forEach(btn => {
-            btn.addEventListener('click', function() {
-                const input = this.parentNode.querySelector('.quantity-input');
-                input.value = parseInt(input.value) + 1;
-            });
-        });
-    });
+    }
+
+    // Inicializar eventos
+    assignCartEvents();
+});
 </script>
 {% endblock %}

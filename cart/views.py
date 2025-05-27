@@ -69,34 +69,8 @@ def cart_view(request):
     }
     return render(request, 'cart\cart_view.html', context)
 
-def delete_from_cart(request, product_id):
-    cart = request.session.get('cart', {})
-    product_key = str(product_id)
-    
-    if product_key in cart:
-        product_name = cart[product_key]['name']
-        del cart[product_key]
-        request.session['cart'] = cart
-        request.session.modified = True
-        messages.success(request, f"{product_name} eliminado del carrito")
-    
-    return redirect('cart_view')
 
-def update_cart(request, product_id):
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
-    try:
-        data = json.loads(request.body)
-        action = data.get('action')
-        # Solo para debug, devuelve lo recibido
-        return JsonResponse({
-            'success': True,
-            'product_id': product_id,
-            'action': action,
-        })
-    except Exception as e:
-        return JsonResponse({'success': False, 'error': str(e)}, status=400)
-    
+
 def clear_cart(request):
     if request.method == 'POST':
         if 'cart' in request.session:
@@ -105,4 +79,53 @@ def clear_cart(request):
         return JsonResponse({'success': True, 'message': 'Carrito vacío'})
 
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
-    
+
+# views.py
+def update_cart_item(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            product_id = str(data.get('product_id'))
+            action = data.get('action')
+            
+            cart = request.session.get('cart', {})
+            
+            if action == 'increment':
+                cart[product_id]['quantity'] += 1
+            elif action == 'decrement':
+                if cart[product_id]['quantity'] > 1:
+                    cart[product_id]['quantity'] -= 1
+            elif action == 'remove':
+                cart.pop(product_id, None)
+            
+            request.session['cart'] = cart
+            request.session.modified = True
+            
+            # Calcular totales
+            total_items = sum(item['quantity'] for item in cart.values())
+            cart_total = sum(item['price'] * item['quantity'] for item in cart.values())
+            
+            return JsonResponse({
+                'success': True,
+                'total_items': total_items,
+                'cart_total': cart_total,
+                'items': cart  # Enviamos todos los items para actualización
+            })
+            
+        except Exception as e:
+            return JsonResponse({
+                'success': False,
+                'error': str(e)
+            }, status=400)    
+
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+def cart_dropdown_content(request):
+    cart = request.session.get('cart', {})
+    context = {
+        'request': request,
+        'cart': cart,
+        'cart_total': sum(item['price'] * item['quantity'] for item in cart.values())
+    }
+    html = render_to_string('includes/cart_dropdown_content.html', context)
+    return HttpResponse(html)
