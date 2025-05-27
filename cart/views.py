@@ -1,3 +1,4 @@
+import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -39,14 +40,14 @@ def add_to_cart(request, product_id):
     return redirect(request.META.get('HTTP_REFERER', 'catalog'))
 
 def cart_view(request):
-    cart = request.session.get('cart', {})
+    cart = request.session.get('cart',{})
     items = []
     total = 0
 
     for product_id, item_data in cart.items():
         try:
             product = Product.objects.get(id=product_id)
-            subtotal = float(item_data['price']) * int(item_data['quantity'])
+            subtotal = float(item_data['price'] * int(item_data['quantity']))
             items.append({
                 'product': product,
                 'quantity': item_data['quantity'],
@@ -66,7 +67,7 @@ def cart_view(request):
         'total': total,
         'cart_empty': len(items) == 0
     }
-    return render(request, 'cart/view_cart.html', context)
+    return render(request, 'cart\cart_view.html', context)
 
 def delete_from_cart(request, product_id):
     cart = request.session.get('cart', {})
@@ -82,26 +83,20 @@ def delete_from_cart(request, product_id):
     return redirect('cart_view')
 
 def update_cart(request, product_id):
-    if request.method == 'POST':
-        quantity = int(request.POST.get('quantity', 1))
-        product_key = str(product_id)
-        cart = request.session.get('cart', {})
-        
-        if product_key in cart:
-            if quantity > 0:
-                cart[product_key]['quantity'] = quantity
-                messages.success(request, f"Cantidad de {cart[product_key]['name']} actualizada")
-            else:
-                # Si la cantidad es 0 o menor, eliminamos el producto
-                product_name = cart[product_key]['name']
-                del cart[product_key]
-                messages.success(request, f"{product_name} eliminado del carrito")
-            
-            request.session['cart'] = cart
-            request.session.modified = True
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=405)
+    try:
+        data = json.loads(request.body)
+        action = data.get('action')
+        # Solo para debug, devuelve lo recibido
+        return JsonResponse({
+            'success': True,
+            'product_id': product_id,
+            'action': action,
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=400)
     
-    return redirect('cart_view')
-
 def clear_cart(request):
     if request.method == 'POST':
         if 'cart' in request.session:

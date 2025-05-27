@@ -104,10 +104,10 @@
                                 </div>
                                 
                                 <div class="d-grid gap-2">
-                                    <a href="#" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
+                                    <a href="{% url 'cart_view' %}" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
                                     <button id="clear-cart-btn" class="btn btn-sm btn-outline-danger">
-                                        <i class="fas fa-trash me-1"></i> Vaciar Carrito
-                                    </button>
+                                    <i class="fas fa-trash me-1"></i> Vaciar Carrito
+                                </button>
                                     <a href="#" class="btn btn-sm btn-success">Pagar</a>
                                 </div>
                             {% else %}
