@@ -4,26 +4,54 @@ from .models import Ticket, ProductoTicket
 import requests
 import openpyxl
 from django.http import HttpResponse
+from decimal import Decimal
+
 
 def postventa(request):
     ticket = Ticket.objects.filter(estado='PENDIENTE').last()
     if not ticket:
         ticket = Ticket.objects.create()
     productos = ticket.productos.all()
+
+    # Total sin descuento
     total = ticket.total
 
-    return render(request, 'postventa.html', {
+    # Cantidad total de productos (sumando cantidades)
+    cantidad_total = sum(p.cantidad for p in productos)
+
+    # Lógica de descuento y mensaje
+    descuento = 0
+    mensaje_descuento = ''
+    color_mensaje = ''
+
+    if cantidad_total >= 4:
+        descuento = total * Decimal('0.05')
+        total_con_descuento = total - descuento
+        mensaje_descuento = "¡Genial! Has conseguido un descuento del 5%."
+        color_mensaje = "green"
+    else:
+        faltan = 4 - cantidad_total
+        total_con_descuento = total
+        mensaje_descuento = f"Te faltan {faltan} producto(s) para tener un descuento del 5%."
+        color_mensaje = "red"
+
+    context = {
         'ticket': ticket,
         'productos': productos,
         'total': total,
-    })
+        'total_con_descuento': total_con_descuento,
+        'descuento': descuento,
+        'mensaje_descuento': mensaje_descuento,
+        'color_mensaje': color_mensaje,
+    }
+    return render(request, 'postventa.html', context)
+
 
 @csrf_exempt
 def agregar_producto(request, ticket_id):
     if request.method == 'POST':
         ticket = get_object_or_404(Ticket, id=ticket_id)
         codigo = request.POST.get('codigo_producto', '').strip()
-        print(f"[DEBUG] Código recibido: '{codigo}'")
 
         if not codigo:
             return render(request, 'postventa.html', {
@@ -34,18 +62,25 @@ def agregar_producto(request, ticket_id):
             })
 
         url_api = f'http://localhost:8003/products/code/{codigo}'
-        print(f"[DEBUG] Consultando API en: {url_api}")
 
         try:
             resp = requests.get(url_api, timeout=5)
-            print(f"[DEBUG] Status API: {resp.status_code}")
-            print(f"[DEBUG] Respuesta API: {resp.text}")
             resp.raise_for_status()
             data = resp.json()
+
             nombre = data.get('name')
             precio = float(data.get('price'))
+            stock = int(data.get('stock'))
+
+            if stock <= 0:
+                return render(request, 'postventa.html', {
+                    'error': f'El producto "{nombre}" no tiene stock disponible.',
+                    'ticket': ticket,
+                    'productos': ticket.productos.all(),
+                    'total': ticket.total,
+                })
+
         except Exception as e:
-            print(f"[ERROR] Error consultando API: {e}")
             return render(request, 'postventa.html', {
                 'error': f'No existe producto con código "{codigo}".',
                 'ticket': ticket,
@@ -53,8 +88,16 @@ def agregar_producto(request, ticket_id):
                 'total': ticket.total,
             })
 
+        # Agregar o incrementar el producto en el ticket
         producto_ticket = ticket.productos.filter(codigo=codigo).first()
         if producto_ticket:
+            if producto_ticket.cantidad + 1 > stock:
+                return render(request, 'postventa.html', {
+                    'error': f'No hay suficiente stock para agregar más unidades de "{nombre}".',
+                    'ticket': ticket,
+                    'productos': ticket.productos.all(),
+                    'total': ticket.total,
+                })
             producto_ticket.cantidad += 1
             producto_ticket.save()
         else:
@@ -66,12 +109,14 @@ def agregar_producto(request, ticket_id):
                 cantidad=1
             )
 
+        # Recalcular total
         ticket.total = sum(p.total for p in ticket.productos.all())
         ticket.save()
 
         return redirect('postventa')
-    else:
-        return redirect('postventa')
+
+    return redirect('postventa')
+
 
 def limpiar_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -80,12 +125,44 @@ def limpiar_ticket(request, ticket_id):
     ticket.save()
     return redirect('postventa')
 
+
 def cobrar_ticket(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
+    productos = ticket.productos.all()
+
+    # Calcula cantidad total para descuento
+    cantidad_total = sum(p.cantidad for p in productos)
+    total = ticket.total
+
+    if cantidad_total >= 4:
+        descuento = total * Decimal('0.05')
+        total_con_descuento = total - descuento
+    else:
+        total_con_descuento = total
+
+    # Actualiza stock via API (igual que antes)
+    for producto in productos:
+        url_stock = f'http://localhost:8003/products/update_stock/{producto.codigo}/'
+        try:
+            resp = requests.post(url_stock, params={'cantidad': producto.cantidad}, timeout=5)
+            resp.raise_for_status()
+        except Exception as e:
+            return render(request, 'postventa.html', {
+                'error': f'No se pudo actualizar el stock de "{producto.nombre}". Error: {e}',
+                'ticket': ticket,
+                'productos': productos,
+                'total': ticket.total,
+            })
+
+    # Guardar el total con descuento en el ticket
+    ticket.total = total_con_descuento
     ticket.estado = 'COBRADO'
     ticket.save()
+
+    # Crear nuevo ticket vacío para seguir trabajando
     Ticket.objects.create()
     return redirect('postventa')
+
 
 def modificar_cantidad(request, ticket_id, producto_id, accion):
     ticket = get_object_or_404(Ticket, id=ticket_id)
@@ -104,7 +181,6 @@ def modificar_cantidad(request, ticket_id, producto_id, accion):
 
 
 
-
 def detalle_lista(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     productos = ticket.productos.all()  # ajusta según tu modelo
@@ -116,8 +192,9 @@ def detalle_lista(request, ticket_id):
 
 
 def historial_postventa(request):
-    tickets = Ticket.objects.all()  # O filtrar como quieras
+    tickets = Ticket.objects.filter(estado='COBRADO') 
     return render(request, 'historialpostventa.html', {'tickets': tickets})
+
 
 
 def detalle_ticket_postventa(request, ticket_id):
@@ -147,7 +224,7 @@ def finalizar_ticket(request, ticket_id):
 
 
 def lista_bodeguero(request):
-    tickets = Ticket.objects.filter(pedido_completado=False).order_by('-id')
+    tickets = Ticket.objects.filter(estado='COBRADO', pedido_completado=False).order_by('-id')
     return render(request, 'listabodeguero.html', {
         'tickets': tickets
     })
@@ -158,6 +235,19 @@ def finalizar_ticket(request, ticket_id):
     ticket.save()
     return redirect('lista_bodeguero')  # o donde quieras redirigir después de finalizar
 
+
+
+def alerta_stock(request):
+    api_url = 'http://localhost:8003/low-stock'  # URL de tu API FastAPI
+
+    try:
+        response = requests.get(api_url)
+        response.raise_for_status()
+        productos = response.json()
+    except requests.RequestException:
+        productos = []
+
+    return render(request, 'alertarstock.html', {'productos': productos})
 
 # exportar exel ticket
 def exportar_tickets_excel(request):

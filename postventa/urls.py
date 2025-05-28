@@ -19,6 +19,8 @@ urlpatterns = [
     path('postventa/<int:ticket_id>/cobrar/', views.cobrar_ticket, name='cobrar_ticket'),
     path('postventa/<int:ticket_id>/producto/<int:producto_id>/<str:accion>/', views.modificar_cantidad, name='modificar_cantidad'),
 
+    path('alertastock/', views.alerta_stock, name='alerta_stock'),
+
 
     path('postventa/exportar_tickets_excel/', views.exportar_tickets_excel, name='exportar_tickets_excel'),
 

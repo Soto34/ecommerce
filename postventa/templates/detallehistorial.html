@@ -72,14 +72,24 @@
                                 <th class="product-name">Código</th>
                                 <th class="product-name">Producto</th>
                                 <th class="product-quantity">Cantidad</th>
+                                <th class="product-quantity">Estado</th>
+                                <th class="product-quantity">Completado</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for producto in productos %}
-                            <tr class="table-body-row">
+                             <tr class="table-body-row">
                                 <td>{{ producto.codigo }}</td>
                                 <td>{{ producto.nombre }}</td>
                                 <td>{{ producto.cantidad }}</td>
+                                <td>{{ producto.ticket.estado }}</td>
+                                <td>
+                                    {% if producto.ticket.pedido_completado %}
+                                        Sí
+                                    {% else %}
+                                        No
+                                    {% endif %}
+                                </td>
                             </tr>
                             {% empty %}
                             <tr><td colspan="3">No hay productos en este ticket.</td></tr>

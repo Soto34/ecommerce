@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Postventa</title>
 
-
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,700" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet" />
@@ -38,7 +37,13 @@
       border-radius: 5px;
       padding: 25px;
       margin-top: 30px;
+      max-width: 1000px; /* por defecto puede estar limitado a menos, aumentamos */
+      width: 100%; /* para que tome el ancho máximo posible dentro del contenedor padre */
+      margin-left: auto;
+      margin-right: auto; /* centra horizontalmente */
+      box-sizing: border-box;
     }
+
     .btn-cobrar {
       font-size: 1.2rem;
       padding: 12px 30px;
@@ -77,7 +82,6 @@
             </div>
             <nav class="main-menu">
               <ul>
-                
                 <li><a href="#">Salir</a></li>
               </ul>
             </nav>
@@ -158,15 +162,24 @@
 
       <div class="d-flex justify-content-between align-items-center mt-4">
         <!-- Formulario para limpiar/eliminar ticket -->
-        <form method="post" action="{% url 'limpiar_ticket' ticket.id %}">
+        <form method="post" action="{% url 'limpiar_ticket' ticket.id %}" style="margin-right: 40px;">
           {% csrf_token %}
-          <button type="submit" class="btn btn-outline-danger">Eliminar Ticket</button>
+          <button type="submit" class="btn btn-outline-danger" style="min-width: 140px; padding-left: 20px; padding-right: 20px;">
+            Limpiar Ticket
+          </button>
         </form>
 
         <!-- Resumen y cobro -->
         <div class="payment-summary">
           <div class="form-inline">
-            <label><strong>Total:</strong> ${{ total }}</label>
+            <label><strong>Total:</strong> ${{ total|floatformat:2 }}</label>
+            {% if descuento > 0 %}
+            <label><strong>Descuento (5%):</strong> -${{ descuento|floatformat:2 }}</label>
+            <label><strong>Total a pagar:</strong> ${{ total_con_descuento|floatformat:2 }}</label>
+            {% endif %}
+            <p style="color: {{ color_mensaje }}; font-weight: bold; margin-left: 20px;">
+              {{ mensaje_descuento }}
+            </p>
             <label><strong>Paga con:</strong>
               <input type="number" class="form-control" placeholder="$0" id="pagaCon" />
             </label>
@@ -192,14 +205,14 @@
   <script>
   const pagaConInput = document.getElementById('pagaCon');
   const cambioTexto = document.getElementById('cambio-texto');
-  // Pasamos total desde Django a JS usando floatformat y parseFloat
-  const total = parseFloat("{{ total|default:"0"|floatformat:2 }}");
+  // Usamos total con descuento si existe, sino total
+  const total = parseFloat("{{ total_con_descuento|default:total|floatformat:2 }}");
 
   pagaConInput.addEventListener('input', () => {
     const pagaCon = parseFloat(pagaConInput.value) || 0;
     const cambio = pagaCon - total;
     cambioTexto.textContent = '$' + (cambio > 0 ? cambio.toFixed(2) : '0');
   });
-</script>
+  </script>
 </body>
 </html>
