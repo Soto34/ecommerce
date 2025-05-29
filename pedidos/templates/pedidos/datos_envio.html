@@ -1,0 +1,178 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %} Datos de envio {% endblock %}
+
+{% block content %}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 90vh; margin-top: 80px;">
+  <div class="col-lg-10 col-xl-8">
+    <!-- Tarjeta con diseño horizontal -->
+    <div class="card border-0" style="
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(253, 245, 235, 0.9);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 12px 40px rgba(30, 25, 22, 0.15);
+      border: 1px solid rgba(234, 166, 54, 0.25);
+    ">
+      <!-- Cabecera con degradado -->
+      <div class="card-header py-4 text-center" style="
+        background: linear-gradient(135deg, var(--primary) 0%, #f1c46b 100%);
+        border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+      ">
+        <h2 class="m-0 text-white" style="
+          font-weight: 700;
+          letter-spacing: 2px;
+          text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        ">
+          <i class="fas fa-truck me-2"></i>DATOS DE ENVÍO
+        </h2>
+      </div>
+      
+      <!-- Cuerpo del formulario -->
+      <div class="card-body p-5">
+        <form method="post" class="needs-validation" novalidate>
+          {% csrf_token %}
+          
+          <div class="form-container">
+            {% for field in form %}
+            <div class="form-group row mb-4 align-items-center">
+              <!-- Label a la izquierda -->
+              <div class="col-md-4">
+                <label for="{{ field.id_for_label }}" class="form-label mb-md-0" style="
+                  color: var(--dark);
+                  font-weight: 600;
+                  font-size: 0.95rem;
+                  letter-spacing: 0.5px;
+                  text-align: right;
+                  padding-right: 25px;
+                ">
+                  {{ field.label }}
+                  {% if field.field.required %}
+                    <span class="text-danger">*</span>
+                  {% endif %}
+                </label>
+              </div>
+              
+              <!-- Input a la derecha -->
+              <div class="col-md-8">
+                {{ field }}
+                
+                <!-- Mensajes de ayuda y error -->
+                {% if field.help_text %}
+                <small class="form-text text-muted mt-2 d-block" style="
+                  font-size: 0.8rem;
+                  font-style: italic;
+                ">
+                  <i class="fas fa-info-circle me-1"></i>{{ field.help_text }}
+                </small>
+                {% endif %}
+                
+                {% for error in field.errors %}
+                <div class="invalid-feedback d-block mt-2" style="
+                  color: #dc3545;
+                  font-size: 0.85rem;
+                ">
+                  <i class="fas fa-exclamation-circle me-1"></i>{{ error }}
+                </div>
+                {% endfor %}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <!-- Botón centrado -->
+          <div class="row mt-5">
+            <div class="col-md-8 offset-md-4">
+              <button type="submit" class="btn btn-lg py-3 fw-bold w-100" style="
+                background: linear-gradient(to right, var(--primary) 0%, #f1c46b 100%);
+                border: none;
+                color: white;
+                letter-spacing: 1px;
+                box-shadow: 0 4px 15px rgba(234, 166, 54, 0.4);
+                border-radius: 10px;
+                transition: all 0.4s;
+              ">
+                CONTINUAR <i class="fas fa-arrow-right ms-2"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Estilos para los campos del formulario */
+  body{
+    margin: 100px;
+  }
+  .form-control {
+    border: 2px solid #e8e8e8;
+    padding: 12px 18px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+    background-color: rgba(255, 255, 255, 0.95);
+    box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+    width: 100%;
+  }
+  
+  .form-control:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(234, 166, 54, 0.2);
+    background-color: white;
+  }
+  
+  select.form-control {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%23545454' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 12px;
+  }
+  
+  /* Efectos para la tarjeta */
+  .card {
+    transition: transform 0.4s, box-shadow 0.4s;
+  }
+  
+  .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 50px rgba(30, 25, 22, 0.2) !important;
+  }
+  
+  /* Efectos para el botón */
+  .btn:hover {
+    background: linear-gradient(to right, #f1c46b 0%, var(--primary) 100%) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(234, 166, 54, 0.5) !important;
+  }
+  
+  .btn:active {
+    transform: translateY(1px);
+  }
+  
+  /* Ajustes para el diseño horizontal */
+  .form-group.row {
+    margin-bottom: 1.8rem;
+  }
+  
+  @media (max-width: 767.98px) {
+    .form-group.row {
+      flex-direction: column;
+    }
+    
+    .col-md-4 {
+      text-align: left !important;
+      padding-right: 15px !important;
+      margin-bottom: 0.5rem;
+    }
+    
+    .col-md-8 {
+      width: 100%;
+    }
+  }
+</style>
+{% endblock %}

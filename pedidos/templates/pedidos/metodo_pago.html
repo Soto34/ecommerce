@@ -1,0 +1,223 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block title %} Método de Pago {% endblock %}
+
+{% block content %}
+<div class="container py-5" style="margin-top: 80px;">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-xl-6">
+      <!-- Tarjeta de selección de pago -->
+      <div class="card border-0 shadow-lg" style="
+        border-radius: 15px;
+        overflow: hidden;
+        background: rgba(253, 245, 235, 0.98);
+        border: 1px solid rgba(234, 166, 54, 0.4);
+        box-shadow: 0 10px 30px rgba(30, 25, 22, 0.1);
+      ">
+        <!-- Cabecera con estilo dorado -->
+        <div class="card-header py-4 text-center" style="
+          background: linear-gradient(135deg, var(--primary) 0%, #f1c46b 100%);
+          border-bottom: 3px solid rgba(255, 255, 255, 0.4);
+        ">
+          <h2 class="m-0 text-white" style="
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            font-size: 1.6rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          ">
+            <i class="fas fa-credit-card me-2"></i>MÉTODO DE PAGO
+          </h2>
+        </div>
+        
+        <!-- Cuerpo del formulario -->
+        <div class="card-body p-5">
+          <form method="post" class="payment-form">
+            {% csrf_token %}
+            
+            <!-- Opciones de pago estilizadas -->
+            <div class="payment-options">
+              {% for field in form %}
+                {% for choice in field %}
+                <div class="payment-option mb-4">
+                  <label for="{{ choice.id_for_label }}" class="payment-label">
+                    <div class="payment-content">
+                      <div class="payment-icon">
+                        {% if "paypal" in choice.choice_label|lower %}
+                          <i class="fab fa-paypal fa-2x" style="color: #003087;"></i>
+                        {% elif "transferencia" in choice.choice_label|lower %}
+                          <i class="fas fa-university fa-2x" style="color: var(--primary);"></i>
+                        {% endif %}
+                      </div>
+                      <div class="payment-text">
+                        <span class="payment-method">{{ choice.choice_label }}</span>
+                        <small class="payment-description">
+                          {% if "paypal" in choice.choice_label|lower %}
+                            Pago seguro con PayPal (tarjetas aceptadas)
+                          {% elif "transferencia" in choice.choice_label|lower %}
+                            Transferencia bancaria directa (datos por email)
+                          {% endif %}
+                        </small>
+                      </div>
+                      <div class="payment-check">
+                        
+                      </div>
+                    </div>
+                  </label>
+                </div>
+                {% endfor %}
+              {% endfor %}
+            </div>
+            
+            <!-- Botón de confirmación -->
+            <div class="d-grid mt-5 pt-2">
+              <button type="submit" class="btn btn-confirm py-3" style="
+                background: linear-gradient(to right, var(--primary) 0%, #f1c46b 100%);
+                border: none;
+                color: white;
+                font-weight: 700;
+                letter-spacing: 1.2px;
+                border-radius: 10px;
+                transition: all 0.4s;
+                font-size: 1.1rem;
+                box-shadow: 0 4px 15px rgba(234, 166, 54, 0.3);
+              ">
+                CONFIRMAR PEDIDO <i class="fas fa-shopping-bag ms-2"></i>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Estilos para las opciones de pago */
+  .payment-option {
+    position: relative;
+  }
+  
+  .payment-input {
+    position: absolute;
+    opacity: 0;
+  }
+  
+  .payment-label {
+    display: block;
+    cursor: pointer;
+    background: white;
+    border: 2px solid #e8e8e8;
+    border-radius: 12px;
+    padding: 20px 25px;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  }
+  
+  .payment-input:checked + .payment-label {
+    border-color: var(--primary);
+    background-color: rgba(234, 166, 54, 0.08);
+    box-shadow: 0 5px 20px rgba(234, 166, 54, 0.15);
+    transform: translateY(-3px);
+  }
+  
+  .payment-input:checked + .payment-label .payment-check {
+    opacity: 1;
+    color: var(--primary);
+    transform: scale(1.1);
+  }
+  
+  .payment-content {
+    display: flex;
+    align-items: center;
+  }
+  
+  .payment-icon {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 25px;
+    background: rgba(234, 166, 54, 0.1);
+    border-radius: 50%;
+    transition: all 0.3s;
+  }
+  
+  .payment-input:checked + .payment-label .payment-icon {
+    background: rgba(234, 166, 54, 0.2);
+  }
+  
+  .payment-text {
+    flex-grow: 1;
+  }
+  
+  .payment-method {
+    display: block;
+    font-weight: 700;
+    color: var(--dark);
+    margin-bottom: 5px;
+    font-size: 1.1rem;
+  }
+  
+  .payment-description {
+    display: block;
+    color: var(--secondary);
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+  
+  .payment-check {
+    opacity: 0;
+    font-size: 1.8rem;
+    transition: all 0.3s;
+    margin-left: 15px;
+  }
+  
+  /* Efecto hover para las opciones */
+  .payment-label:hover {
+    border-color: var(--primary);
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+  }
+  
+  /* Estilo para el botón */
+  .btn-confirm:hover {
+    background: linear-gradient(to right, #f1c46b 0%, var(--primary) 100%) !important;
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(234, 166, 54, 0.5) !important;
+    letter-spacing: 1.5px;
+  }
+  
+  .btn-confirm:active {
+    transform: translateY(1px);
+  }
+  
+  /* Responsive */
+  @media (max-width: 767.98px) {
+    .card-body {
+      padding: 2rem !important;
+    }
+    
+    .payment-content {
+      flex-direction: row;
+      text-align: left;
+    }
+    
+    .payment-icon {
+      margin-right: 20px;
+      margin-bottom: 0;
+      width: 50px;
+      height: 50px;
+    }
+    
+    .payment-check {
+      position: static;
+      margin-left: 10px;
+    }
+    
+    .payment-label {
+      padding: 15px 20px;
+    }
+  }
+</style>
+{% endblock %}

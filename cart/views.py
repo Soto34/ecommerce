@@ -3,6 +3,9 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from products.models import Product
+from django.template.loader import render_to_string
+from django.http import HttpResponse
+
 
 def calculate_cart_total(cart):
     """Función auxiliar para calcular el total del carrito"""
@@ -80,7 +83,7 @@ def clear_cart(request):
 
     return JsonResponse({'success': False, 'error': 'Método no permitido'}, status=400)
 
-# views.py
+
 def update_cart_item(request):
     if request.method == 'POST':
         try:
@@ -102,7 +105,7 @@ def update_cart_item(request):
             request.session.modified = True
             
             # Calcular totales
-            total_items = sum(item['quantity'] for item in cart.values())
+            total_items = len(cart)
             cart_total = sum(item['price'] * item['quantity'] for item in cart.values())
             
             return JsonResponse({
@@ -118,8 +121,7 @@ def update_cart_item(request):
                 'error': str(e)
             }, status=400)    
 
-from django.template.loader import render_to_string
-from django.http import HttpResponse
+
 def cart_dropdown_content(request):
     cart = request.session.get('cart', {})
     context = {

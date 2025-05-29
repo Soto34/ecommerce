@@ -235,9 +235,7 @@ document.addEventListener('DOMContentLoaded', function() {
             btn.addEventListener('click', function(e) {
                 e.preventDefault();
                 const productId = this.closest('tr').dataset.productId;
-                if (confirm('¿Estás seguro de que quieres eliminar este producto del carrito?')) {
-                    handleCartAction(productId, 'remove');
-                }
+                handleCartAction(productId, 'remove');
             });
         });
     }
