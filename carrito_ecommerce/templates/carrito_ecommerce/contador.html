@@ -1,0 +1,48 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Verificación de Tickets Pendientes (Contador)</h2>
+
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-success">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+
+    {% if resumen %}
+        {% for r in resumen %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-secondary text-white">
+                <strong>Ticket #{{ r.ticket.id }}</strong> - {{ r.ticket.nombre }} {{ r.ticket.apellido }} ({{ r.ticket.rut }})
+            </div>
+            <div class="card-body">
+                <p><strong>Dirección:</strong> {{ r.ticket.direccion }}, {{ r.ticket.comuna }}</p>
+                <p><strong>Productos:</strong></p>
+                <ul>
+                    {% for item in r.productos %}
+                        <li>{{ item.nombre }} x {{ item.cantidad }} — ${{ item.precio }}</li>
+                    {% endfor %}
+                </ul>
+                {% if r.descuento > 0 %}
+                    <p class="text-success">Descuento aplicado: -${{ r.descuento|floatformat:0 }}</p>
+                {% endif %}
+                <p><strong>Total con Descuento:</strong> ${{ r.total|floatformat:0 }}</p>
+
+                {% if r.ticket.comprobante %}
+                    <p><strong>Comprobante:</strong> 
+                        <a href="{{ r.ticket.comprobante.url }}" target="_blank" class="btn btn-outline-primary btn-sm">Ver Comprobante</a>
+                    </p>
+                    <a href="{% url 'validar_pago' r.ticket.id %}" class="btn btn-success">Marcar como Pagado</a>
+                {% else %}
+                    <div class="alert alert-warning mt-3">No se ha subido comprobante.</div>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">No hay tickets pendientes por validar.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -40,6 +40,7 @@
     <div class="product-grid">
         {% for product in products %}
             <div class="product-card">
+
                 {% if product.image %}
                     <img src="{{ product.image }}" alt="{{ product.name }}" class="product-image">
                 {% else %}
@@ -49,9 +50,13 @@
                     <h3 class="product-name">{{ product.name }}</h3>
                     <div class="product-price">${{ product.price }}</div>
                     <div class="button-group">
-                        <a href="{% url 'add_to_cart' product.id %}" class="btn btn-primary">
-                            <i class="fas fa-cart-plus me-2"></i>Añadir al Carrito
-                        </a>
+                        <form method="post" action="{% url 'add_carrito' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="codigo" value="{{ product.codigo }}">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-cart-plus me-2"></i>Añadir al Carrito
+                            </button>
+                        </form>
                         <a href="{% url 'detail_catalogo' product.id %}" class="add-to-cart">Ver detalle</a>
                     </div>
                 </div>

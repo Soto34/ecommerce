@@ -1,0 +1,81 @@
+{% extends 'home/base.html' %}
+{% load static %}
+{% load form_filters %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Formulario de Compra -->
+        <div class="col-md-6 offset-md-3">
+            <h2 class="mb-4">Finalizar Compra</h2>
+            <form method="post" enctype="multipart/form-data" class="p-4 border rounded bg-light shadow-sm">
+                {% csrf_token %}
+                <div class="mb-3">
+                    {{ form.nombre.label_tag }} {{ form.nombre|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.apellido.label_tag }} {{ form.apellido|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.rut.label_tag }} {{ form.rut|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.direccion.label_tag }} {{ form.direccion|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.comuna.label_tag }} {{ form.comuna|add_class:"form-control" }}
+                </div>
+                <div class="mb-3">
+                    {{ form.metodo_pago.label_tag }} {{ form.metodo_pago|add_class:"form-select" }}
+                </div>
+
+                <div id="comprobante-group" class="mb-3" style="display: none;">
+                    {{ form.comprobante.label_tag }} {{ form.comprobante|add_class:"form-control" }}
+                    <small class="form-text text-muted">Debe subir el comprobante si selecciona transferencia.</small>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100">Confirmar Compra</button>
+            </form>
+        </div>
+
+        <!-- Resumen debajo -->
+        <div class="col-md-8 offset-md-2 mt-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Resumen del Pedido</h5>
+                </div>
+                <div class="card-body">
+                    {% for item in ticket.productos.all %}
+                        <p class="mb-1"><strong>{{ item.nombre }}</strong> x {{ item.cantidad }} — ${{ item.precio|floatformat:0 }}</p>
+                    {% endfor %}
+                    <hr>
+                    {% if descuento > 0 %}
+                        <p class="text-success">Descuento aplicado: -${{ descuento|floatformat:0 }}</p>
+                    {% endif %}
+                    <h5 class="mt-3">Total a Pagar: <strong>${{ total|floatformat:0 }}</strong></h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const metodoPagoField = document.querySelector('#id_metodo_pago');
+    const comprobanteGroup = document.getElementById('comprobante-group');
+
+    function toggleComprobante() {
+        if (metodoPagoField.value === 'transferencia') {
+            comprobanteGroup.style.display = 'block';
+        } else {
+            comprobanteGroup.style.display = 'none';
+        }
+    }
+
+    if (metodoPagoField) {
+        metodoPagoField.addEventListener('change', toggleComprobante);
+        toggleComprobante();
+    }
+});
+</script>
+{% endblock %}

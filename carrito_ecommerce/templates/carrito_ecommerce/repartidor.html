@@ -1,0 +1,37 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Vista del Repartidor - Pedidos Listos para Entrega</h2>
+
+    {% if tickets %}
+        {% for ticket in tickets %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-dark text-white">
+                <strong>Ticket #{{ ticket.id }}</strong> - {{ ticket.nombre }} {{ ticket.apellido }}
+                <span class="float-end badge bg-light text-dark">{{ ticket.estado_envio }}</span>
+            </div>
+            <div class="card-body">
+                <p><strong>Dirección:</strong> {{ ticket.direccion }}, {{ ticket.comuna }}</p>
+                <p><strong>Productos:</strong></p>
+                <ul>
+                    {% for item in ticket.productos.all %}
+                        <li>{{ item.nombre }} x {{ item.cantidad }} — ${{ item.precio|floatformat:0 }}</li>
+                    {% endfor %}
+                </ul>
+                <p><strong>Total:</strong> ${{ ticket.total|floatformat:0 }}</p>
+
+                {% if ticket.estado_envio == 'productos recolectados' %}
+                    <a href="{% url 'cambiar_estado_envio2' ticket.id %}" class="btn btn-success mt-2">Marcar como Entregado</a>
+                {% else %}
+                    <span class="badge bg-success">Entregado</span>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">No hay pedidos para entregar.</div>
+    {% endif %}
+</div>
+{% endblock %}

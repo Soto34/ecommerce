@@ -1,0 +1,59 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Tu Carrito</h2>
+
+    {% if productos %}
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Producto</th>
+                <th>Precio</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in productos %}
+            <tr>
+                <td>{{ item.nombre }}</td>
+                <td>${{ item.precio }}</td>
+                <td>
+                    <form action="{% url 'actualizar_cantidad' item.id %}" method="POST" style="display: flex; align-items: center; gap: 5px;">
+                        {% csrf_token %}
+                        <button type="submit" name="accion" value="decrementar" class="btn btn-sm btn-outline-secondary">−</button>
+                        <input type="text" name="cantidad" value="{{ item.cantidad }}" readonly style="width: 40px; text-align: center;">
+                        <button type="submit" name="accion" value="incrementar" class="btn btn-sm btn-outline-secondary">+</button>
+                    </form>
+                </td>
+                <td>${{ item.subtotal }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            {% if descuento > 0 %}
+            <tr>
+                <td colspan="3" class="text-end">Descuento (5%)</td>
+                <td>-${{ descuento }}</td>
+            </tr>
+            {% endif %}
+            <tr>
+                <td colspan="3" class="text-end"><strong>Total</strong></td>
+                <td><strong>${{ total }}</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+
+    {% if mensaje_descuento %}
+    <div class="alert alert-success">{{ mensaje_descuento }}</div>
+    {% endif %}
+
+    <a href="{% url 'finalizar_compraecommerce' %}" class="btn btn-success mt-3">Finalizar Compra</a>
+
+    {% else %}
+    <div class="alert alert-info">Tu carrito está vacío.</div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'cart',
     'user',
     'postventa',
+    'carrito_ecommerce',
      
 ]
 
