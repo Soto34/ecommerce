@@ -26,6 +26,9 @@
                     <li {% if request.resolver_match.url_name == 'categories_list' %}class="active"{% endif %}>
                         <a href="{% url 'categories_list' %}"><i class="fas fa-tags"></i> Categorías</a>
                     </li>
+                    <li {% if request.resolver_match.url_name == 'users_list' %}class="active"{% endif %}>
+                        <a href="{% url 'users_list' %}"><i class="fas fa-users"></i> Usuarios</a>
+                    </li>
                 </ul>
             </nav>
         </div>

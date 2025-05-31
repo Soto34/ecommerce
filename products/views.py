@@ -11,10 +11,12 @@ import uuid
 import os
 from django.conf import settings
 from urllib.parse import urlparse
+from django.views.decorators.http import require_POST
 
 
 API_URL = "http://127.0.0.1:8003/products/"
 API_BASE_URL = "http://localhost:3001/categories"
+API_USERS_URL = "http://127.0.0.1:8003/users/"
 
 def delete_product_image(image_url):
     if not image_url:
@@ -321,6 +323,8 @@ def catalogo(request):
         'selected_category': selected_category,
     }
     return render(request, 'products/catalogo.html', context)
+
+
 def detail(request, pk):
     try:
         response = requests.get(f"http://127.0.0.1:8003/products/{pk}")
@@ -334,3 +338,100 @@ def detail(request, pk):
         return redirect('catalogo')
 
     return render(request, 'products/product_detail.html', {'product': product})
+ 
+
+  # usurarios
+
+def users_list(request):
+    try:
+        response = requests.get(API_USERS_URL)
+        response.raise_for_status()
+        users_data = response.json()
+    except requests.RequestException as e:
+        messages.error(request, f"No se pudieron obtener los usuarios: {e}")
+        users_data = []
+
+    # Paginación con Django
+    paginator = Paginator(users_data, 10)  # 10 usuarios por página
+    page = request.GET.get('page')
+
+    try:
+        users = paginator.page(page)
+    except PageNotAnInteger:
+        users = paginator.page(1)
+    except EmptyPage:
+        users = paginator.page(paginator.num_pages)
+
+    return render(request, 'products/users_list.html', {'users': users})
+
+def user_create(request):
+    if request.method == 'POST':
+        data = {
+            "email": request.POST.get('email'),
+            "nombre": request.POST.get('nombre'),
+            "apellido": request.POST.get('apellido'),
+            "rut": request.POST.get('rut'),
+            "password": request.POST.get('password'),
+            "rol": request.POST.get('rol'),
+        }
+        try:
+            response = requests.post(API_USERS_URL, json=data)
+            if response.status_code in [200, 201]:
+                messages.success(request, "Usuario creado correctamente")
+                return redirect('users_list')
+            else:
+                error = response.json().get('detail', 'Error desconocido')
+                messages.error(request, f"Error creando usuario: {error}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error conexión API: {e}")
+
+    return render(request, 'products/user_form.html')
+
+def user_edit(request, user_id):
+    try:
+        response = requests.get(f"{API_USERS_URL}{user_id}")
+        response.raise_for_status()
+        user_data = response.json()
+    except requests.RequestException as e:
+        messages.error(request, f"No se pudo obtener el usuario: {e}")
+        return redirect('users_list')
+
+    if request.method == 'POST':
+        updated_data = {
+            "email": request.POST.get('email'),
+            "nombre": request.POST.get('nombre'),
+            "apellido": request.POST.get('apellido'),
+            "rut": request.POST.get('rut'),
+            "rol": request.POST.get('rol'),
+        }
+        # Opcional: manejar cambio de contraseña
+        password = request.POST.get('password')
+        if password:
+            updated_data['password'] = password
+
+        try:
+            put_response = requests.put(f"{API_USERS_URL}{user_id}", json=updated_data)
+            if put_response.status_code == 200:
+                messages.success(request, "Usuario actualizado correctamente")
+                return redirect('users_list')
+            else:
+                error = put_response.json().get('detail', 'Error desconocido')
+                messages.error(request, f"Error actualizando usuario: {error}")
+        except requests.RequestException as e:
+            messages.error(request, f"Error conexión API: {e}")
+
+    return render(request, 'products/user_form.html', {'user': user_data})
+
+
+@require_POST
+def user_delete(request, user_id):
+    try:
+        response = requests.delete(f"{API_USERS_URL}{user_id}")
+        if response.status_code == 204:
+            messages.success(request, "Usuario eliminado correctamente")
+        else:
+            messages.error(request, f"Error eliminando usuario: {response.text}")
+    except requests.RequestException as e:
+        messages.error(request, f"Error conexión API: {e}")
+    return redirect('users_list')
+

@@ -1,0 +1,10 @@
+{% extends 'home/base.html' %}
+{% block content %}
+<h2>Perfil de Usuario</h2>
+<p><strong>Nombre:</strong> {{ user.nombre }}</p>
+<p><strong>Apellido:</strong> {{ user.apellido }}</p>
+<p><strong>Email:</strong> {{ user.email }}</p>
+<p><strong>RUT:</strong> {{ user.rut }}</p>
+<p><strong>Rol:</strong> {{ user.rol }}</p>
+<a href="{% url 'user:logout' %}">Cerrar sesión</a>
+{% endblock %}
