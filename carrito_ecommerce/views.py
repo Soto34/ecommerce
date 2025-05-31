@@ -241,6 +241,8 @@ def cambiar_estado_envio2(request, ticket_id):
     ticket.save()
     return redirect('lista_repartidor')
 
+
+
 def mis_pedidos_view(request):
     user_email = request.session.get('user_email')
     print("📧 Email en sesión:", user_email)
