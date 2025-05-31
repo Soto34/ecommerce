@@ -7,9 +7,6 @@ urlpatterns = [
     path('carrito/', views.ver_carrito, name='ver_carrito'),
     path('finalizar/', views.finalizar_compra, name='finalizar_compraecommerce'),
     path('validar-pago/<int:ticket_id>/', views.validar_pago, name='validar_pago'),
-
-
-
     path('bodeguero/', views.lista_bodeguero, name='lista_bodegueroecommerce'),
     path('cambiar-estado-envio/<int:ticket_id>/', views.cambiar_estado_envio, name='cambiar_estado_envio'),
 

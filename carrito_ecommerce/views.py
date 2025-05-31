@@ -139,7 +139,12 @@ def finalizar_compra(request):
                     ticket.comprobante = request.FILES['comprobante']
             ticket.save()
             del request.session['ticket_id']
-            return HttpResponse("Compra finalizada")
+
+            return render(request,'carrito_ecommerce/compra_exitosa.html',{
+                'ticket': ticket,
+                'total': total,
+                'descuento': descuento,
+            })
     else:
         form = FinalizarCompraForm(instance=ticket)
 

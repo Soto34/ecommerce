@@ -2,58 +2,127 @@
 {% load static %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Tu Carrito</h2>
+<div class="container py-5" style="margin-top: 80px;">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="card border-0 shadow-lg" style="
+        border-radius: 20px;
+        overflow: hidden;
+        background: #fffaf3;
+        border: 1px solid #f0dfc5;
+      ">
+        <div class="card-header py-4 px-5" style="
+          background: linear-gradient(135deg, #e49b31, #f6cd72);
+          border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+        ">
+          <h2 class="m-0 text-white fw-bold" style="letter-spacing: 1px;">
+            <i class="fas fa-shopping-cart me-2"></i>Tu Carrito
+          </h2>
+        </div>
 
-    {% if productos %}
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Producto</th>
-                <th>Precio</th>
-                <th>Cantidad</th>
-                <th>Subtotal</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for item in productos %}
-            <tr>
-                <td>{{ item.nombre }}</td>
-                <td>${{ item.precio }}</td>
-                <td>
-                    <form action="{% url 'actualizar_cantidad' item.id %}" method="POST" style="display: flex; align-items: center; gap: 5px;">
-                        {% csrf_token %}
-                        <button type="submit" name="accion" value="decrementar" class="btn btn-sm btn-outline-secondary">−</button>
-                        <input type="text" name="cantidad" value="{{ item.cantidad }}" readonly style="width: 40px; text-align: center;">
-                        <button type="submit" name="accion" value="incrementar" class="btn btn-sm btn-outline-secondary">+</button>
+        <div class="card-body p-5">
+          {% if productos %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead class="table-light">
+                <tr>
+                  <th>Producto</th>
+                  <th>Precio</th>
+                  <th>Cantidad</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for item in productos %}
+                <tr>
+                  <td class="fw-semibold">{{ item.nombre }}</td>
+                  <td class="text-secondary">${{ item.precio }}</td>
+                  <td>
+                    <form action="{% url 'actualizar_cantidad' item.id %}" method="POST" class="d-flex align-items-center">
+                      {% csrf_token %}
+                      <button type="submit" name="accion" value="decrementar" class="btn btn-sm btn-outline-warning">−</button>
+                      <input type="text" name="cantidad" value="{{ item.cantidad }}" readonly 
+                             class="form-control form-control-sm text-center mx-2" style="width: 50px;">
+                      <button type="submit" name="accion" value="incrementar" class="btn btn-sm btn-outline-warning">+</button>
                     </form>
-                </td>
-                <td>${{ item.subtotal }}</td>
-            </tr>
-            {% endfor %}
-        </tbody>
-        <tfoot>
-            {% if descuento > 0 %}
-            <tr>
-                <td colspan="3" class="text-end">Descuento (5%)</td>
-                <td>-${{ descuento }}</td>
-            </tr>
-            {% endif %}
-            <tr>
-                <td colspan="3" class="text-end"><strong>Total</strong></td>
-                <td><strong>${{ total }}</strong></td>
-            </tr>
-        </tfoot>
-    </table>
+                  </td>
+                  <td class="fw-semibold">${{ item.subtotal }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+              <tfoot>
+                {% if descuento > 0 %}
+                <tr>
+                  <td colspan="3" class="text-end fw-bold text-dark">Descuento (5%)</td>
+                  <td class="fw-semibold text-danger">-${{ descuento }}</td>
+                </tr>
+                {% endif %}
+                <tr>
+                  <td colspan="3" class="text-end fw-bold text-dark">TOTAL:</td>
+                  <td>
+                    <span class="fw-bold fs-5 text-primary">${{ total }}</span>
+                  </td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
 
-    {% if mensaje_descuento %}
-    <div class="alert alert-success">{{ mensaje_descuento }}</div>
-    {% endif %}
+          {% if mensaje_descuento %}
+          <div class="alert alert-success mt-4" style="background-color: #d4edda; border-color: #c3e6cb; color: #155724;">
+            {{ mensaje_descuento }}
+          </div>
+          {% endif %}
 
-    <a href="{% url 'finalizar_compraecommerce' %}" class="btn btn-success mt-3">Finalizar Compra</a>
-
-    {% else %}
-    <div class="alert alert-info">Tu carrito está vacío.</div>
-    {% endif %}
+          <div class="d-flex justify-content-end mt-4">
+            <a href="{% url 'finalizar_compraecommerce' %}" class="btn btn-warning text-white rounded-pill px-4 py-2 fw-bold">
+              Finalizar Compra <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+          </div>
+          
+          {% else %}
+          <div class="text-center py-5">
+            <i class="fas fa-shopping-cart fa-4x mb-4 text-warning opacity-25"></i>
+            <h4 class="text-muted">Tu carrito está vacío</h4>
+            <p class="text-secondary">Agrega productos para comenzar</p>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+<style>
+  .table-hover tbody tr:hover {
+    background-color: #fff3e0 !important;
+    transition: all 0.3s ease-in-out;
+  }
+  
+  .btn-outline-warning {
+    color: #e49b31;
+    border-color: #e49b31;
+  }
+  
+  .btn-outline-warning:hover {
+    color: #fff;
+    background-color: #e49b31;
+    border-color: #e49b31;
+  }
+  
+  .btn-warning {
+    background-color: #e49b31;
+    border-color: #e49b31;
+  }
+  
+  .btn-warning:hover {
+    background-color: #d18c2a;
+    border-color: #d18c2a;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(228, 155, 49, 0.3);
+  }
+  
+  .card-header {
+    box-shadow: inset 0 10px 20px rgba(255, 255, 255, 0.2);
+  }
+</style>
 {% endblock %}
