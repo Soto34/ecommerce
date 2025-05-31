@@ -1,7 +1,17 @@
 from django.db import models
 from decimal import Decimal
+from django.conf import settings  # Para referenciar al usuario custom
 
 class TicketEcommerce(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='tickets'
+    )
+    email_usuario = models.EmailField(null=True, blank=True)  # <--- Agregado
+
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
     rut = models.CharField(max_length=20)
@@ -34,7 +44,6 @@ class TicketEcommerce(models.Model):
         if self.productos.count() >= 4:
             total -= total * Decimal('0.05')
         return total
-    
     
 class ProductoTicketEcommerce(models.Model):
     ticket = models.ForeignKey(TicketEcommerce, related_name='productos', on_delete=models.CASCADE)

@@ -21,6 +21,9 @@ urlpatterns = [
 
     path('cambiar-estado-envio2/<int:ticket_id>/', views.cambiar_estado_envio2, name='cambiar_estado_envio2'),
     path('repartidor/', views.lista_repartidor, name='lista_repartidor'),
+
+
+    path('mis-pedidos/', views.mis_pedidos_view, name='mis_pedidos'),
  
 
 

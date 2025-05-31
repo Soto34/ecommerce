@@ -1,4 +1,3 @@
-# VISTAS
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
 from .models import TicketEcommerce, ProductoTicketEcommerce
@@ -6,6 +5,31 @@ from .forms import FinalizarCompraForm
 import requests
 from decimal import Decimal
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.db.models import Q
+
+
+def obtener_ticket_activo(request):
+    user = request.user if request.user.is_authenticated else None
+    if user:
+        ticket = TicketEcommerce.objects.filter(user=user, estado_pago='pendiente').last()
+        if ticket:
+            return ticket
+
+    email_usuario = request.session.get('user_email')
+    if email_usuario:
+        ticket = TicketEcommerce.objects.filter(email_usuario=email_usuario, estado_pago='pendiente').last()
+        if ticket:
+            return ticket
+
+    ticket_id = request.session.get('ticket_id')
+    if ticket_id:
+        ticket = TicketEcommerce.objects.filter(id=ticket_id, estado_pago='pendiente').last()
+        if ticket:
+            return ticket
+
+    return None
+
 
 def agregar_producto(request):
     if request.method == 'POST':
@@ -23,12 +47,19 @@ def agregar_producto(request):
             precio = Decimal(data.get('price') or data.get('precio_mayorista', 0))
             stock = int(data.get('stock', 0))
 
-            ticket_id = request.session.get('ticket_id')
-            ticket = TicketEcommerce.objects.filter(id=ticket_id, estado_pago='pendiente').last()
+            ticket = obtener_ticket_activo(request)
 
             if not ticket:
-                ticket = TicketEcommerce.objects.create(nombre='', apellido='', rut='', direccion='', comuna='')
-                request.session['ticket_id'] = ticket.id
+                # Obtener email del usuario de la sesión
+                email_usuario = request.session.get('user_email')
+
+                ticket = TicketEcommerce.objects.create(
+                    user=request.user if request.user.is_authenticated else None,
+                    nombre='', apellido='', rut='', direccion='', comuna='',
+                    email_usuario=email_usuario  # <-- asignar email aquí
+                )
+                if not request.user.is_authenticated:
+                    request.session['ticket_id'] = ticket.id
 
             producto = ticket.productos.filter(codigo=codigo).first()
             if producto:
@@ -54,20 +85,20 @@ def actualizar_cantidad(request, item_id):
         accion = request.POST.get('accion')
         item = get_object_or_404(ProductoTicketEcommerce, id=item_id)
 
+        try:
+            url = f'http://localhost:8003/products/code/{item.codigo}'
+            r = requests.get(url)
+            r.raise_for_status()
+            data = r.json()
+            stock = int(data.get('stock', 0))
+        except Exception as e:
+            print("❌ Error al validar stock:", e)
+            stock = None
+
         if accion == 'incrementar':
-            try:
-                url = f'http://localhost:8003/products/code/{item.codigo}'
-                r = requests.get(url)
-                r.raise_for_status()
-                data = r.json()
-                stock = int(data.get('stock', 0))
-
-                if item.cantidad < stock:
-                    item.cantidad += 1
-                    item.save()
-            except Exception as e:
-                print("❌ Error al validar stock:", e)
-
+            if stock is None or item.cantidad < stock:
+                item.cantidad += 1
+                item.save()
         elif accion == 'decrementar':
             item.cantidad -= 1
             if item.cantidad <= 0:
@@ -78,17 +109,14 @@ def actualizar_cantidad(request, item_id):
     return redirect('ver_carrito')
 
 def ver_carrito(request):
-    ticket_id = request.session.get('ticket_id')
-    ticket = None
+    ticket = obtener_ticket_activo(request)
     productos = []
     total = Decimal('0.00')
     descuento = Decimal('0.00')
     mensaje_descuento = ''
 
-    if ticket_id:
-        ticket = get_object_or_404(TicketEcommerce, id=ticket_id)
+    if ticket:
         productos = ticket.productos.all()
-
         for producto in productos:
             producto.subtotal = producto.precio * producto.cantidad
             total += producto.subtotal
@@ -108,13 +136,11 @@ def ver_carrito(request):
     }
     return render(request, 'carrito_ecommerce/carrito.html', context)
 
-
-
 def finalizar_compra(request):
-    ticket_id = request.session.get('ticket_id')
-    ticket = get_object_or_404(TicketEcommerce, id=ticket_id)
+    ticket = obtener_ticket_activo(request)
+    if not ticket:
+        return redirect('ver_carrito')
 
-    # Calcular totales manualmente igual que en ver_carrito
     productos = ticket.productos.all()
     total = sum(p.precio * p.cantidad for p in productos)
     descuento = Decimal('0.00')
@@ -138,7 +164,8 @@ def finalizar_compra(request):
                 if 'comprobante' in request.FILES:
                     ticket.comprobante = request.FILES['comprobante']
             ticket.save()
-            del request.session['ticket_id']
+            if not request.user.is_authenticated:
+                del request.session['ticket_id']
 
             return render(request,'carrito_ecommerce/compra_exitosa.html',{
                 'ticket': ticket,
@@ -155,10 +182,6 @@ def finalizar_compra(request):
         'descuento': descuento,
         'mensaje_descuento': mensaje_descuento,
     })
-
-
-
-
 
 def vista_contador(request):
     tickets_pendientes = TicketEcommerce.objects.filter(estado_pago='pendiente')
@@ -183,7 +206,6 @@ def vista_contador(request):
         'resumen': resumen
     })
 
-
 def validar_pago(request, ticket_id):
     ticket = get_object_or_404(TicketEcommerce, id=ticket_id, estado_pago='pendiente')
     ticket.estado_pago = 'pagado'
@@ -191,12 +213,9 @@ def validar_pago(request, ticket_id):
     messages.success(request, f"El ticket #{ticket.id} fue marcado como pagado.")
     return redirect('vista_contador')
 
-
-
 def lista_bodeguero(request):
     tickets = TicketEcommerce.objects.filter(estado_pago='pagado')
     return render(request, 'carrito_ecommerce/bodeguero.html', {'tickets': tickets})
-
 
 def cambiar_estado_envio(request, ticket_id):
     ticket = get_object_or_404(TicketEcommerce, id=ticket_id)
@@ -208,8 +227,6 @@ def cambiar_estado_envio(request, ticket_id):
 
     ticket.save()
     return redirect('lista_bodegueroecommerce')
-
-
 
 def lista_repartidor(request):
     tickets = TicketEcommerce.objects.filter(estado_envio='productos recolectados')
@@ -223,3 +240,17 @@ def cambiar_estado_envio2(request, ticket_id):
         ticket.estado_envio = 'producto entregado'
     ticket.save()
     return redirect('lista_repartidor')
+
+def mis_pedidos_view(request):
+    user_email = request.session.get('user_email')
+    print("📧 Email en sesión:", user_email)
+
+    if not user_email:
+        messages.error(request, "Debes iniciar sesión para ver tus pedidos.")
+        return redirect('user:login')
+
+    pedidos = TicketEcommerce.objects.filter(
+        Q(user__email=user_email) | Q(email_usuario=user_email)
+    ).order_by('-fecha_creacion')
+
+    return render(request, 'carrito_ecommerce/mis_pedidos.html', {'pedidos': pedidos})

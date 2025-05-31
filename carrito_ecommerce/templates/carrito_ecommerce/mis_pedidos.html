@@ -1,0 +1,48 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Mis Pedidos</h2>
+
+    {% if pedidos %}
+        {% for ticket in pedidos %}
+        <div class="card mb-4 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <strong>Pedido #{{ forloop.counter }}</strong>- {{ ticket.email_usuario }}
+                <span class="float-end badge 
+                    {% if ticket.estado_envio == 'recolectando productos' %}
+                        bg-warning text-dark
+                    {% elif ticket.estado_envio == 'productos recolectados' %}
+                        bg-info text-white
+                    {% elif ticket.estado_envio == 'entregado' %}
+                        bg-success
+                    {% else %}
+                        bg-secondary
+                    {% endif %}
+                ">
+                    {{ ticket.estado_envio|capfirst }}
+                </span>
+            </div>
+            <div class="card-body">
+                <p><strong>Fecha del pedido:</strong> {{ ticket.fecha_creacion|date:"d/m/Y H:i" }}</p>
+
+                <p><strong>Productos:</strong></p>
+                <ul>
+                    {% for producto in ticket.productos.all %}
+                        <li>
+                            {{ producto.nombre }} x {{ producto.cantidad }} — 
+                            ${{ producto.precio|floatformat:0 }} c/u
+                        </li>
+                    {% endfor %}
+                </ul>
+
+                <p><strong>Total del pedido:</strong> ${{ ticket.total|floatformat:0 }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <div class="alert alert-info">No tienes pedidos realizados.</div>
+    {% endif %}
+</div>
+{% endblock %}

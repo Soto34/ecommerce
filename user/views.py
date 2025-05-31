@@ -1,6 +1,7 @@
 import requests
 from django.shortcuts import render, redirect
 from django.contrib import messages
+import jwt
 
 def register_view(request):
     if request.method == 'POST':
@@ -52,6 +53,7 @@ def login_view(request):
 
         try:
             response = requests.post('http://localhost:8003/token', data=data)
+            response.raise_for_status()
         except requests.exceptions.RequestException as e:
             messages.error(request, f"Error de conexión con la API: {str(e)}")
             return render(request, 'login.html')
@@ -59,9 +61,10 @@ def login_view(request):
         if response.status_code == 200:
             token_data = response.json()
             token = token_data.get('access_token')
-            request.session['jwt_token'] = token  # Guardar token en sesión Django
+            request.session['jwt_token'] = token  # Guardar token JWT
+            request.session['user_email'] = email  # Guardar email en sesión
             messages.success(request, "Login exitoso")
-            return redirect('home')  # O a donde quieras
+            return redirect('home')
         else:
             messages.error(request, "Email o contraseña incorrectos")
 
