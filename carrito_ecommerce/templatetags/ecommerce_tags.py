@@ -8,25 +8,35 @@ register = template.Library()
 def obtener_ticket_activo(context):
     request = context['request']
     user = request.user if request.user.is_authenticated else None
-    
+
     if user:
-        ticket = TicketEcommerce.objects.filter(user=user, estado_pago='pendiente').last()
+        ticket = TicketEcommerce.objects.filter(
+            user=user,
+            es_carrito=True  # ✅ solo tickets activos
+        ).last()
         if ticket:
             return ticket
 
     email_usuario = request.session.get('user_email')
     if email_usuario:
-        ticket = TicketEcommerce.objects.filter(email_usuario=email_usuario, estado_pago='pendiente').last()
+        ticket = TicketEcommerce.objects.filter(
+            email_usuario=email_usuario,
+            es_carrito=True  # ✅
+        ).last()
         if ticket:
             return ticket
 
     ticket_id = request.session.get('ticket_id')
     if ticket_id:
-        ticket = TicketEcommerce.objects.filter(id=ticket_id, estado_pago='pendiente').last()
+        ticket = TicketEcommerce.objects.filter(
+            id=ticket_id,
+            es_carrito=True  # ✅
+        ).last()
         if ticket:
             return ticket
 
     return None
+
 
 @register.filter
 def sumar_subtotales(productos):

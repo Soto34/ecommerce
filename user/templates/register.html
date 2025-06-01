@@ -2,10 +2,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Register</title>
-  <link rel="stylesheet" href="{% static 'assets/css/styleformulario.css' %}" />
+  <link rel="stylesheet" href="{% static 'assets/css/styleformulario.css' %}">
 </head>
 <body>
   <div class="container">
@@ -14,23 +14,23 @@
         {% csrf_token %}
         <h2>Register</h2>
 
-        <label for="nombre">Nombre</label>
-        <input type="text" id="nombre" name="nombre" required />
+        <label for="email">Nombre</label>
+        <input type="name" id="name" name="name" required>
 
-        <label for="apellido">Apellido</label>
-        <input type="text" id="apellido" name="apellido" required />
+        <label for="email">Apellido</label>
+        <input type="apellido" id="apellido" name="apellido" required>
 
-        <label for="rut">Rut</label>
-        <input type="text" id="rut" name="rut" required />
+        <label for="email">Rut</label>
+        <input type="apellido" id="apellido" name="apellido" required>
 
         <label for="email">Email</label>
-        <input type="email" id="email" name="email" required />
+        <input type="Rut" id="Rut" name="Rut" required>
 
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required />
+        <input type="password" id="password" name="password" required>
 
-        <label for="password_confirm">Confirm Password</label>
-        <input type="password" id="password_confirm" name="password_confirm" required />
+        <label for="confirm">Confirm Password</label>
+        <input type="password" id="confirm" name="confirm" required>
 
         <div class="form-footer">
           <a href="{% url 'user:login' %}">Back to Login</a>
@@ -38,13 +38,6 @@
 
         <button type="submit">Register</button>
       </form>
-      {% if messages %}
-        <ul>
-          {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
-          {% endfor %}
-        </ul>
-      {% endif %}
     </div>
     <div class="image-section"></div>
   </div>

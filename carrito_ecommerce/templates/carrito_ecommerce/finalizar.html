@@ -13,44 +13,44 @@
         --success-color: #155724;
         --warning-color: #e49b31;
     }
-    
+
     .checkout-container {
-        padding: 220px 0 10px; /* Reducido el padding inferior */
-        min-height: calc(100vh - 200px); /* Altura adaptativa */
+        padding: 220px 0 10px;
+        min-height: calc(100vh - 200px);
     }
-    
+
     .card-main {
         border-radius: 20px;
-        overflow: hidden;
         background: var(--card-bg);
         border: 1px solid var(--card-border);
         box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
         margin: 0 auto;
         max-width: 1200px;
         width: 95%;
+        overflow: hidden;
     }
-    
+
     .page-header {
         background: var(--primary-gradient);
         color: white;
         padding: 1.5rem;
+        text-align: center;
+        font-size: 1.6rem;
         border-radius: 20px 20px 0 0;
         border-bottom: 3px solid rgba(255, 255, 255, 0.3);
         margin-bottom: 0;
-        text-align: center;
-        font-size: 1.6rem;
     }
-    
+
     .form-section {
         padding: 2rem;
     }
-    
+
     .summary-section {
         padding: 2rem;
         background: rgba(255, 248, 240, 0.5);
         border-left: 1px dashed var(--card-border);
     }
-    
+
     .form-control, .form-select {
         border: 1px solid var(--card-border);
         background-color: rgba(255, 255, 255, 0.7);
@@ -58,13 +58,13 @@
         padding: 12px 15px;
         transition: all 0.3s;
     }
-    
+
     .form-control:focus, .form-select:focus {
         border-color: var(--warning-color);
         box-shadow: 0 0 0 0.2rem rgba(228, 155, 49, 0.25);
         background-color: white;
     }
-    
+
     .btn-warning-custom {
         background: var(--primary-gradient);
         border: none;
@@ -72,25 +72,24 @@
         font-weight: 600;
         padding: 12px 25px;
         border-radius: 25px;
-        transition: all 0.3s;
         width: 100%;
         margin-top: 15px;
         font-size: 1rem;
+        transition: all 0.3s;
     }
-    
+
     .btn-warning-custom:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(228, 155, 49, 0.3);
     }
-    
+
     .summary-card {
         background: white;
         border-radius: 15px;
         border: 1px solid var(--card-border);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-        overflow: hidden;
     }
-    
+
     .summary-header {
         background: var(--primary-gradient);
         color: white;
@@ -98,30 +97,28 @@
         font-weight: 600;
         font-size: 1.1rem;
     }
-    
+
     .summary-item {
         padding: 14px 20px;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         display: flex;
         justify-content: space-between;
-        font-size: 0.95rem;
     }
-    
+
     .summary-total {
         padding: 18px 20px;
         font-size: 1.2rem;
         font-weight: 700;
-        color: #333;
         display: flex;
         justify-content: space-between;
         background-color: rgba(244, 244, 244, 0.5);
     }
-    
+
     .discount {
         color: #28a745;
         font-weight: 600;
     }
-    
+
     .comprobante-group {
         background: rgba(244, 244, 244, 0.5);
         border-radius: 10px;
@@ -129,16 +126,16 @@
         margin-top: 20px;
         border: 1px dashed var(--card-border);
     }
-    
+
     .section-title {
-        position: relative;
-        padding-bottom: 15px;
         margin-bottom: 25px;
-        color: #333;
         font-weight: 600;
         font-size: 1.3rem;
+        position: relative;
+        color: #333;
+        padding-bottom: 15px;
     }
-    
+
     .section-title:after {
         content: '';
         position: absolute;
@@ -149,12 +146,19 @@
         background: var(--warning-color);
         border-radius: 2px;
     }
-    
-    /* Nuevo estilo para el contenedor de PayPal */
+
     #paypal-button-container {
         margin-top: 20px;
     }
-    
+
+    #cuenta-transferencia {
+        background: #fff3cd;
+        border: 1px solid #ffeeba;
+        padding: 20px;
+        border-radius: 10px;
+        margin-top: 20px;
+    }
+
     @media (max-width: 992px) {
         .summary-section {
             border-left: none;
@@ -162,26 +166,17 @@
             margin-top: 1.5rem;
             padding-top: 1.5rem;
         }
-        
-        .card-main {
-            width: 98%;
-        }
     }
-    
+
     @media (max-width: 768px) {
         .checkout-container {
             padding: 100px 0 20px;
         }
-        
-        .page-header {
-            padding: 1.2rem;
-            font-size: 1.4rem;
-        }
-        
+
         .form-section, .summary-section {
             padding: 1.0rem;
         }
-        
+
         .section-title {
             font-size: 1.2rem;
         }
@@ -194,13 +189,11 @@
             <div class="col-12">
                 <div class="card-main">
                     <h2 class="page-header">Finalizar Compra</h2>
-                    
                     <div class="row g-0">
-                        <!-- Formulario de Compra -->
+                        <!-- Formulario -->
                         <div class="col-lg-7 form-section">
                             <h3 class="section-title">Información del Cliente</h3>
-                            
-                            <form method="post" enctype="multipart/form-data">
+                            <form method="post" enctype="multipart/form-data" id="checkout-form">
                                 {% csrf_token %}
                                 <div class="row">
                                     <div class="col-md-6 mb-3">
@@ -212,50 +205,43 @@
                                         {{ form.apellido|add_class:"form-control" }}
                                     </div>
                                 </div>
-                                
                                 <div class="mb-3">
                                     {{ form.rut.label_tag }}
                                     {{ form.rut|add_class:"form-control" }}
                                 </div>
-                                
                                 <div class="mb-3">
                                     {{ form.direccion.label_tag }}
                                     {{ form.direccion|add_class:"form-control" }}
                                 </div>
-                                
                                 <div class="mb-3">
                                     {{ form.comuna.label_tag }}
                                     {{ form.comuna|add_class:"form-control" }}
                                 </div>
-                                
                                 <div class="mb-3">
                                     {{ form.metodo_pago.label_tag }}
                                     {{ form.metodo_pago|add_class:"form-select" }}
                                 </div>
-    
+
                                 <div id="comprobante-group" class="comprobante-group" style="display: none;">
                                     {{ form.comprobante.label_tag }}
                                     {{ form.comprobante|add_class:"form-control" }}
                                     <small class="form-text text-muted">Debe subir el comprobante si selecciona transferencia.</small>
                                 </div>
-                                
+
                                 <button type="submit" class="btn btn-warning-custom">
                                     <i class="fas fa-check-circle me-2"></i>Confirmar Compra
                                 </button>
-
                                 <div id="paypal-button-container" style="display: none;"></div>
                             </form>
                         </div>
-                        
-                        <!-- Resumen del Pedido -->
+
+                        <!-- Resumen -->
                         <div class="col-lg-5 summary-section">
                             <h3 class="section-title">Resumen del Pedido</h3>
-                            
                             <div class="summary-card">
                                 <div class="summary-header">
                                     <i class="fas fa-receipt me-2"></i>Detalles de la Orden
                                 </div>
-                                
                                 <div class="card-body p-0">
                                     {% for item in ticket.productos.all %}
                                         <div class="summary-item">
@@ -263,26 +249,34 @@
                                             <div>${{ item.precio|floatformat:0 }}</div>
                                         </div>
                                     {% endfor %}
-                                    
                                     {% if descuento > 0 %}
                                         <div class="summary-item discount">
                                             <div>Descuento aplicado</div>
                                             <div>-${{ descuento|floatformat:0 }}</div>
                                         </div>
                                     {% endif %}
-                                    
                                     <div class="summary-total">
                                         <div>Total a Pagar:</div>
                                         <div><strong>${{ total|floatformat:0 }}</strong></div>
                                     </div>
                                 </div>
                             </div>
-                            
+
                             {% if descuento > 0 %}
-                            <div class="alert alert-success mt-3" role="alert" style="background-color: var(--success-bg); border-color: var(--success-border); color: var(--success-color);">
-                                <i class="fas fa-gift me-2"></i>¡Tu compra ha recibido un descuento especial!
-                            </div>
+                                <div class="alert alert-success mt-3">
+                                    <i class="fas fa-gift me-2"></i>¡Tu compra ha recibido un descuento especial!
+                                </div>
                             {% endif %}
+
+                            <div id="cuenta-transferencia" style="display: none;" class="alert alert-info mt-3">
+                                <h5 class="mb-2"><i class="fas fa-university me-2"></i>Cuenta para Transferencia</h5>
+                                <p><strong>Banco:</strong> Banco Estado</p>
+                                <p><strong>Tipo de cuenta:</strong> Cuenta Rut</p>
+                                <p><strong>Número:</strong> 12345678</p>
+                                <p><strong>Nombre:</strong> AutoParts SPA</p>
+                                <p><strong>RUT:</strong> 76.543.210-9</p>
+                                <p><strong>Email:</strong> pagos@autoparts.cl</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -290,111 +284,74 @@
         </div>
     </div>
 </div>
-<script src="https://www.paypal.com/sdk/js?client-id=AWrr5N3HDCoLGgywA6PsjNAZ99dAroKI2V7WWFLJBj8uTnLoyO4Cu0fKduGfhMtN9gLrsjplKP1ie902&components=buttons"></script>
 
+<script src="https://www.paypal.com/sdk/js?client-id=AWrr5N3HDCoLGgywA6PsjNAZ99dAroKI2V7WWFLJBj8uTnLoyO4Cu0fKduGfhMtN9gLrsjplKP1ie902&components=buttons"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const metodoPagoField = document.querySelector('#id_metodo_pago');
     const comprobanteGroup = document.getElementById('comprobante-group');
     const paypalContainer = document.getElementById('paypal-button-container');
-    
-    // Obtener el valor total como string
+    const cuentaTransferencia = document.getElementById('cuenta-transferencia');
+
     const totalStr = "{{ total }}";
-    console.log("Valor total original:", totalStr);
-    
-    // Convertir a número correctamente (manejar puntos como separadores de miles)
     const totalCLP = parseFloat(totalStr.replace(/\./g, '').replace(',', '.')) || 0;
-    console.log("Valor CLP convertido:", totalCLP);
-    
+
     function togglePaymentFields() {
         const metodo = metodoPagoField.value;
-        
+
         if (metodo === 'transferencia') {
             comprobanteGroup.style.display = 'block';
             paypalContainer.style.display = 'none';
+            cuentaTransferencia.style.display = 'block';
         } else if (metodo === 'paypal') {
             comprobanteGroup.style.display = 'none';
             paypalContainer.style.display = 'block';
-            
-            // Limpiar contenedor y crear botón
+            cuentaTransferencia.style.display = 'none';
             paypalContainer.innerHTML = '';
             createPayPalButton();
         } else {
             comprobanteGroup.style.display = 'none';
             paypalContainer.style.display = 'none';
+            cuentaTransferencia.style.display = 'none';
         }
     }
 
     function createPayPalButton() {
-        // Obtener el valor del dólar y crear el botón
         fetch('https://mindicador.cl/api/dolar')
-            .then(response => {
-                if (!response.ok) throw new Error('Error en la API');
-                return response.json();
-            })
+            .then(response => response.json())
             .then(data => {
                 const dollarRate = data.serie[0].valor;
-                console.log("Valor del dólar:", dollarRate);
-                
-                // Calcular el total en dólares
                 const totalUSD = (totalCLP / dollarRate).toFixed(2);
-                console.log("Total en USD:", totalUSD);
-                
-                // Crear botón de PayPal
-                const buttons = paypal.Buttons({
-                    createOrder: function(data, actions) {
-                        return actions.order.create({
-                            purchase_units: [{
-                                amount: {
-                                    value: totalUSD,
-                                    currency_code: 'USD'
-                                }
-                            }]
-                        });
-                    },
-                    onApprove: function(data, actions) {
-                        return actions.order.capture().then(function(details) {
+
+                paypal.Buttons({
+                    createOrder: (data, actions) => actions.order.create({
+                        purchase_units: [{
+                            amount: { value: totalUSD, currency_code: 'USD' }
+                        }]
+                    }),
+                    onApprove: (data, actions) =>
+                        actions.order.capture().then(details => {
                             alert('Pago completado por ' + details.payer.name.given_name);
                             document.getElementById('checkout-form').submit();
-                        });
-                    },
-                    onError: function(err) {
-                        console.error('Error en PayPal:', err);
-                        alert('Error en el proceso de pago. Intente nuevamente.');
-                    }
-                });
-                
-                buttons.render('#paypal-button-container');
+                        }),
+                    onError: (err) => alert('Error en el proceso de pago.')
+                }).render('#paypal-button-container');
             })
-            .catch(error => {
-                console.error('Error al obtener dólar:', error);
-                // Fallback con tasa aproximada
+            .catch(() => {
                 const totalUSD = (totalCLP / 900).toFixed(2);
-                
-                const buttons = paypal.Buttons({
-                    createOrder: function(data, actions) {
-                        return actions.order.create({
-                            purchase_units: [{
-                                amount: {
-                                    value: totalUSD,
-                                    currency_code: 'USD'
-                                }
-                            }]
-                        });
-                    },
-                    onApprove: function(data, actions) {
-                        return actions.order.capture().then(function(details) {
+                paypal.Buttons({
+                    createOrder: (data, actions) => actions.order.create({
+                        purchase_units: [{
+                            amount: { value: totalUSD, currency_code: 'USD' }
+                        }]
+                    }),
+                    onApprove: (data, actions) =>
+                        actions.order.capture().then(details => {
                             alert('Pago completado por ' + details.payer.name.given_name);
                             document.getElementById('checkout-form').submit();
-                        });
-                    },
-                    onError: function(err) {
-                        console.error('Error en PayPal:', err);
-                        alert('Error en el proceso de pago. Intente nuevamente.');
-                    }
-                });
-                
-                buttons.render('#paypal-button-container');
+                        }),
+                    onError: (err) => alert('Error en el proceso de pago.')
+                }).render('#paypal-button-container');
             });
     }
 
@@ -404,6 +361,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-
-
 {% endblock %}

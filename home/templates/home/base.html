@@ -9,8 +9,7 @@
     <meta content="" name="keywords">
     <meta content="" name="description">
 
-    <!-- Favicon -->
-    <link href="{% static 'home/img/favicon.ico' %}" rel="icon">
+
 
     <!-- Google Web Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -53,10 +52,10 @@
             <div class="navbar-nav d-flex align-items-center">
                 <!--Carrito-->
                 <div class="cart-icon dropdown">
+                    {% obtener_ticket_activo as ticket %}
                     <a href="#" class="nav-link" id="cartDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-shopping-cart fa-lg text-light"></i>
                         <span class="cart-count">
-                            {% obtener_ticket_activo as ticket %}
                             {% if ticket %}
                                 {{ ticket.productos.count }}
                             {% else %}
@@ -64,11 +63,11 @@
                             {% endif %}
                         </span>
                     </a>
+
                     <div class="dropdown-menu dropdown-menu-end cart-dropdown p-3" aria-labelledby="cartDropdown" style="width: 320px;">
                         <h6 class="dropdown-header text-center mb-2">Tu Carrito</h6>
                         
                         <div class="cart-items-container" style="max-height: 300px; overflow-y: auto;">
-                            {% obtener_ticket_activo as ticket %}
                             {% if ticket and ticket.productos.all %}
                                 {% for producto in ticket.productos.all %}
                                 <div class="cart-item d-flex align-items-center mb-3 pb-2 border-bottom">
@@ -96,7 +95,7 @@
                                 
                                 <div class="d-grid gap-2">
                                     <a href="{% url 'ver_carrito' %}" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
-                                    <a href="#" class="btn btn-sm btn-success">Pagar</a>
+                                    <a href="{% url 'finalizar_compraecommerce' %}" class="btn btn-sm btn-success">Pagar</a>
                                 </div>
                             {% else %}
                                 <div class="text-center py-3">

@@ -1,7 +1,6 @@
-{% extends 'home/base.html' %}
+
 {% load static %}
 
-{% block content %}
 <style>
     .error-container {
         min-height: 70vh;
@@ -64,12 +63,9 @@
 </style>
 
 <div class="container error-container">
-    <!-- Puedes reemplazar con tu propia ilustración -->
-    <img src="{% static 'images/404-illustration.svg' %}" alt="Error 404" class="error-illustration">
     <h1 class="error-title">404</h1>
     <p class="error-subtitle">Lo sentimos, la página que estás buscando no existe o ha sido movida.</p>
     <a href="{% url 'home' %}" class="error-home-btn">
         Volver al inicio
     </a>
 </div>
-{% endblock %}

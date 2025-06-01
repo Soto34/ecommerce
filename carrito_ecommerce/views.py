@@ -11,24 +11,38 @@ from django.db.models import Q
 
 def obtener_ticket_activo(request):
     user = request.user if request.user.is_authenticated else None
+
     if user:
-        ticket = TicketEcommerce.objects.filter(user=user, estado_pago='pendiente').last()
+        ticket = TicketEcommerce.objects.filter(
+            user=user,
+            estado_pago='pendiente',
+            es_carrito=True
+        ).last()
         if ticket:
             return ticket
 
     email_usuario = request.session.get('user_email')
     if email_usuario:
-        ticket = TicketEcommerce.objects.filter(email_usuario=email_usuario, estado_pago='pendiente').last()
+        ticket = TicketEcommerce.objects.filter(
+            email_usuario=email_usuario,
+            estado_pago='pendiente',
+            es_carrito=True
+        ).last()
         if ticket:
             return ticket
 
     ticket_id = request.session.get('ticket_id')
     if ticket_id:
-        ticket = TicketEcommerce.objects.filter(id=ticket_id, estado_pago='pendiente').last()
+        ticket = TicketEcommerce.objects.filter(
+            id=ticket_id,
+            estado_pago='pendiente',
+            es_carrito=True
+        ).last()
         if ticket:
             return ticket
 
     return None
+
 
 def agregar_producto(request):
     if request.method == 'POST':
@@ -49,18 +63,19 @@ def agregar_producto(request):
             ticket = obtener_ticket_activo(request)
 
             if not ticket:
-                # Obtener email del usuario de la sesión
                 email_usuario = request.session.get('user_email')
 
                 ticket = TicketEcommerce.objects.create(
                     user=request.user if request.user.is_authenticated else None,
                     nombre='', apellido='', rut='', direccion='', comuna='',
-                    email_usuario=email_usuario  # <-- asignar email aquí
+                    email_usuario=email_usuario
                 )
                 if not request.user.is_authenticated:
                     request.session['ticket_id'] = ticket.id
 
-            producto = ticket.productos.filter(codigo=codigo).first()
+            # ✅ Corrección aquí:
+            producto = ProductoTicketEcommerce.objects.filter(ticket=ticket, codigo=codigo).first()
+
             if producto:
                 if producto.cantidad < stock:
                     producto.cantidad += 1
@@ -78,6 +93,7 @@ def agregar_producto(request):
             print("❌ Error al agregar producto:", e)
 
     return redirect('catalogo')
+
 
 def limpiar_carrito(request):
     ticket = obtener_ticket_activo(request)
@@ -167,25 +183,42 @@ def finalizar_compra(request):
         total -= descuento
 
     if request.method == 'POST':
+        print("✅ POST recibido:", request.POST.dict())
+
         form = FinalizarCompraForm(request.POST, request.FILES, instance=ticket)
         if form.is_valid():
             ticket = form.save(commit=False)
             metodo_pago = form.cleaned_data['metodo_pago']
+
             if metodo_pago == 'paypal':
                 ticket.estado_pago = 'pagado'
             else:
                 ticket.estado_pago = 'pendiente'
                 if 'comprobante' in request.FILES:
                     ticket.comprobante = request.FILES['comprobante']
-            ticket.save()
-            if not request.user.is_authenticated:
-                del request.session['ticket_id']
 
-            return render(request,'carrito_ecommerce/compra_exitosa.html',{
+            ticket.es_carrito = False  # ✅ Marcar que ya no es carrito
+            ticket.save()
+
+            # ✅ Limpiar el ticket de la sesión
+            request.session.pop('ticket_id', None)
+
+            return render(request, 'carrito_ecommerce/compra_exitosa.html', {
                 'ticket': ticket,
                 'total': total,
                 'descuento': descuento,
             })
+        else:
+            print("❌ Errores en el formulario:", form.errors)
+
+            return render(request, 'carrito_ecommerce/finalizar.html', {
+                'form': form,
+                'ticket': ticket,
+                'total': total,
+                'descuento': descuento,
+                'mensaje_descuento': mensaje_descuento,
+            })
+
     else:
         form = FinalizarCompraForm(instance=ticket)
 
@@ -196,6 +229,7 @@ def finalizar_compra(request):
         'descuento': descuento,
         'mensaje_descuento': mensaje_descuento,
     })
+
 
 def vista_contador(request):
     tickets_pendientes = TicketEcommerce.objects.filter(estado_pago='pendiente')

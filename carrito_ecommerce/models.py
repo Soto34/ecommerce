@@ -10,7 +10,7 @@ class TicketEcommerce(models.Model):
         blank=True,
         related_name='tickets'
     )
-    email_usuario = models.EmailField(null=True, blank=True)  # <--- Agregado
+    email_usuario = models.EmailField(null=True, blank=True)
 
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
@@ -38,13 +38,16 @@ class TicketEcommerce(models.Model):
     comprobante = models.FileField(upload_to='comprobantes/', blank=True, null=True)
     fecha_creacion = models.DateTimeField(auto_now_add=True)
 
+    # ✅ Campo nuevo para distinguir carritos reales de pedidos
+    es_carrito = models.BooleanField(default=True)
+
     @property
     def total(self):
         total = sum(item.precio * item.cantidad for item in self.productos.all())
         if self.productos.count() >= 4:
             total -= total * Decimal('0.05')
         return total
-    
+
 class ProductoTicketEcommerce(models.Model):
     ticket = models.ForeignKey(TicketEcommerce, related_name='productos', on_delete=models.CASCADE)
     codigo = models.CharField(max_length=50)
