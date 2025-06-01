@@ -1,4 +1,5 @@
 {% load static %}
+{% load ecommerce_tags %}
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -51,15 +52,13 @@
             
             <div class="navbar-nav d-flex align-items-center">
                 <!--Carrito-->
-                
                 <div class="cart-icon dropdown">
                     <a href="#" class="nav-link" id="cartDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-shopping-cart fa-lg text-light"></i>
                         <span class="cart-count">
-                            {% if request.session.cart %}
-                                {{ request.session.cart|length }}
-                            {% elif user.is_authenticated and user.cart.items.count %}
-                                {{ user.cart.items.count }}
+                            {% obtener_ticket_activo as ticket %}
+                            {% if ticket %}
+                                {{ ticket.productos.count }}
                             {% else %}
                                 0
                             {% endif %}
@@ -69,52 +68,34 @@
                         <h6 class="dropdown-header text-center mb-2">Tu Carrito</h6>
                         
                         <div class="cart-items-container" style="max-height: 300px; overflow-y: auto;">
-                            {% if user.is_authenticated and user.cart.items.all or request.session.cart %}
-                                {% if user.is_authenticated and user.cart.items.all %}
-                                    {% for item in user.cart.items.all %}
-                                    <div class="cart-item d-flex align-items-center mb-3 pb-2 border-bottom">
-                                        <div class="flex-shrink-0">
-                                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" 
-                                                class="rounded" 
-                                                style="width: 60px; height: 60px; object-fit: cover;">
-                                        </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <div class="d-flex justify-content-between">
-                                                <h6 class="mb-0">{{ item.product.name|truncatechars:20 }}</h6>
-                                                <small class="text-muted">x{{ item.quantity }}</small>
-                                            </div>
-                                            <small class="text-success">${{ item.product.price }}</small>
+                            {% obtener_ticket_activo as ticket %}
+                            {% if ticket and ticket.productos.all %}
+                                {% for producto in ticket.productos.all %}
+                                <div class="cart-item d-flex align-items-center mb-3 pb-2 border-bottom">
+                                    <div class="flex-shrink-0">
+                                        <div style="width: 60px; height: 60px; background-color: #f5f5f5; display: flex; align-items: center; justify-content: center;">
+                                            <i class="fas fa-bread-slice fa-2x text-muted"></i>
                                         </div>
                                     </div>
-                                    {% endfor %}
-                                {% else %}
-                                    {% for key, item_data in request.session.cart.items %}
-                                    <div class="cart-item d-flex align-items-center mb-3 pb-2 border-bottom">
-                                        <div class="flex-shrink-0">
-                                            <img src="{{ item_data.image }}" alt="{{ item_data.name }}" 
-                                                class="rounded" 
-                                                style="width: 60px; height: 60px; object-fit: cover;">
+                                    <div class="flex-grow-1 ms-3">
+                                        <div class="d-flex justify-content-between">
+                                            <h6 class="mb-0">{{ producto.nombre|truncatechars:20 }}</h6>
+                                            <small class="text-muted">x{{ producto.cantidad }}</small>
                                         </div>
-                                        <div class="flex-grow-1 ms-3">
-                                            <div class="d-flex justify-content-between">
-                                                <h6 class="mb-0">{{ item_data.name|truncatechars:20 }}</h6>
-                                                <small class="text-muted">x{{ item_data.quantity }}</small>
-                                            </div>
-                                            <small class="text-success">${{ item_data.price }}</small>
-                                        </div>
+                                        <small class="text-success">${{ producto.precio }}</small>
                                     </div>
-                                    {% endfor %}
-                                {% endif %}
+                                </div>
+                                {% endfor %}
                                 
                                 <div class="d-flex justify-content-between mt-3 mb-2">
                                     <strong>Total:</strong>
                                     <strong>
-                                        ${% if user.is_authenticated and user.cart %}{{ user.cart.total|floatformat:2 }}{% else %}{{ request.session.cart_total|default:0|floatformat:2 }}{% endif %}
+                                        ${% with total=ticket.productos.all|sumar_subtotales %}{{ total|floatformat:2 }}{% endwith %}
                                     </strong>
                                 </div>
                                 
                                 <div class="d-grid gap-2">
-                                    <a href="{% url 'cart_view' %}" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
+                                    <a href="{% url 'ver_carrito' %}" class="btn btn-sm btn-outline-primary">Ver Carrito</a>
                                     <a href="#" class="btn btn-sm btn-success">Pagar</a>
                                 </div>
                             {% else %}
@@ -235,5 +216,7 @@
             document.querySelector('.cart-count').textContent = count;
         }
     </script>
+
+    
 </body>
 </html>

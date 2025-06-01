@@ -1,6 +1,6 @@
 from django.db import models
 from decimal import Decimal
-from django.conf import settings  # Para referenciar al usuario custom
+from django.conf import settings  
 
 class TicketEcommerce(models.Model):
     user = models.ForeignKey(
@@ -51,3 +51,6 @@ class ProductoTicketEcommerce(models.Model):
     nombre = models.CharField(max_length=255)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
     cantidad = models.PositiveIntegerField()
+
+    def subtotal(self):
+        return self.precio * self.cantidad

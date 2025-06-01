@@ -30,7 +30,6 @@ def obtener_ticket_activo(request):
 
     return None
 
-
 def agregar_producto(request):
     if request.method == 'POST':
         codigo = request.POST.get('codigo')
@@ -78,7 +77,22 @@ def agregar_producto(request):
         except Exception as e:
             print("❌ Error al agregar producto:", e)
 
-    return redirect('ver_carrito')
+    return redirect('catalogo')
+
+def limpiar_carrito(request):
+    ticket = obtener_ticket_activo(request)
+    
+    if ticket:
+        # Eliminar todos los productos del carrito
+        ticket.productos.all().delete()
+        # Opcional: eliminar el ticket también
+        # ticket.delete()
+        messages.success(request, "El carrito se ha vaciado correctamente")
+    else:
+        messages.info(request, "No hay productos en el carrito")
+    
+    return redirect('ver_carrito')  # Redirige a la vista del carrito
+
 
 def actualizar_cantidad(request, item_id):
     if request.method == 'POST':
