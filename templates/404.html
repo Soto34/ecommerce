@@ -1,0 +1,75 @@
+{% extends 'home/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    .error-container {
+        min-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 2rem;
+    }
+    
+    .error-title {
+        font-size: 5rem;
+        font-weight: 900;
+        color: #2c3e50;
+        margin-bottom: 1rem;
+        line-height: 1;
+    }
+    
+    .error-subtitle {
+        font-size: 1.5rem;
+        color: #7f8c8d;
+        margin-bottom: 2rem;
+        max-width: 600px;
+    }
+    
+    .error-home-btn {
+        display: inline-block;
+        padding: 12px 30px;
+        background-color: #3498db;
+        color: white;
+        text-decoration: none;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: 2px solid #3498db;
+    }
+    
+    .error-home-btn:hover {
+        background-color: transparent;
+        color: #3498db;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .error-illustration {
+        max-width: 300px;
+        margin-bottom: 2rem;
+    }
+    
+    @media (max-width: 768px) {
+        .error-title {
+            font-size: 3rem;
+        }
+        
+        .error-subtitle {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+
+<div class="container error-container">
+    <!-- Puedes reemplazar con tu propia ilustración -->
+    <img src="{% static 'images/404-illustration.svg' %}" alt="Error 404" class="error-illustration">
+    <h1 class="error-title">404</h1>
+    <p class="error-subtitle">Lo sentimos, la página que estás buscando no existe o ha sido movida.</p>
+    <a href="{% url 'home' %}" class="error-home-btn">
+        Volver al inicio
+    </a>
+</div>
+{% endblock %}
