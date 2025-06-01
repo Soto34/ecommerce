@@ -150,6 +150,11 @@
         border-radius: 2px;
     }
     
+    /* Nuevo estilo para el contenedor de PayPal */
+    #paypal-button-container {
+        margin-top: 20px;
+    }
+    
     @media (max-width: 992px) {
         .summary-section {
             border-left: none;
@@ -233,10 +238,12 @@
                                     {{ form.comprobante|add_class:"form-control" }}
                                     <small class="form-text text-muted">Debe subir el comprobante si selecciona transferencia.</small>
                                 </div>
-    
+                                
                                 <button type="submit" class="btn btn-warning-custom">
                                     <i class="fas fa-check-circle me-2"></i>Confirmar Compra
                                 </button>
+
+                                <div id="paypal-button-container" style="display: none;"></div>
                             </form>
                         </div>
                         
@@ -283,24 +290,120 @@
         </div>
     </div>
 </div>
+<script src="https://www.paypal.com/sdk/js?client-id=AWrr5N3HDCoLGgywA6PsjNAZ99dAroKI2V7WWFLJBj8uTnLoyO4Cu0fKduGfhMtN9gLrsjplKP1ie902&components=buttons"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const metodoPagoField = document.querySelector('#id_metodo_pago');
     const comprobanteGroup = document.getElementById('comprobante-group');
-
-    function toggleComprobante() {
-        if (metodoPagoField.value === 'transferencia') {
+    const paypalContainer = document.getElementById('paypal-button-container');
+    
+    // Obtener el valor total como string
+    const totalStr = "{{ total }}";
+    console.log("Valor total original:", totalStr);
+    
+    // Convertir a número correctamente (manejar puntos como separadores de miles)
+    const totalCLP = parseFloat(totalStr.replace(/\./g, '').replace(',', '.')) || 0;
+    console.log("Valor CLP convertido:", totalCLP);
+    
+    function togglePaymentFields() {
+        const metodo = metodoPagoField.value;
+        
+        if (metodo === 'transferencia') {
             comprobanteGroup.style.display = 'block';
+            paypalContainer.style.display = 'none';
+        } else if (metodo === 'paypal') {
+            comprobanteGroup.style.display = 'none';
+            paypalContainer.style.display = 'block';
+            
+            // Limpiar contenedor y crear botón
+            paypalContainer.innerHTML = '';
+            createPayPalButton();
         } else {
             comprobanteGroup.style.display = 'none';
+            paypalContainer.style.display = 'none';
         }
     }
 
+    function createPayPalButton() {
+        // Obtener el valor del dólar y crear el botón
+        fetch('https://mindicador.cl/api/dolar')
+            .then(response => {
+                if (!response.ok) throw new Error('Error en la API');
+                return response.json();
+            })
+            .then(data => {
+                const dollarRate = data.serie[0].valor;
+                console.log("Valor del dólar:", dollarRate);
+                
+                // Calcular el total en dólares
+                const totalUSD = (totalCLP / dollarRate).toFixed(2);
+                console.log("Total en USD:", totalUSD);
+                
+                // Crear botón de PayPal
+                const buttons = paypal.Buttons({
+                    createOrder: function(data, actions) {
+                        return actions.order.create({
+                            purchase_units: [{
+                                amount: {
+                                    value: totalUSD,
+                                    currency_code: 'USD'
+                                }
+                            }]
+                        });
+                    },
+                    onApprove: function(data, actions) {
+                        return actions.order.capture().then(function(details) {
+                            alert('Pago completado por ' + details.payer.name.given_name);
+                            document.getElementById('checkout-form').submit();
+                        });
+                    },
+                    onError: function(err) {
+                        console.error('Error en PayPal:', err);
+                        alert('Error en el proceso de pago. Intente nuevamente.');
+                    }
+                });
+                
+                buttons.render('#paypal-button-container');
+            })
+            .catch(error => {
+                console.error('Error al obtener dólar:', error);
+                // Fallback con tasa aproximada
+                const totalUSD = (totalCLP / 900).toFixed(2);
+                
+                const buttons = paypal.Buttons({
+                    createOrder: function(data, actions) {
+                        return actions.order.create({
+                            purchase_units: [{
+                                amount: {
+                                    value: totalUSD,
+                                    currency_code: 'USD'
+                                }
+                            }]
+                        });
+                    },
+                    onApprove: function(data, actions) {
+                        return actions.order.capture().then(function(details) {
+                            alert('Pago completado por ' + details.payer.name.given_name);
+                            document.getElementById('checkout-form').submit();
+                        });
+                    },
+                    onError: function(err) {
+                        console.error('Error en PayPal:', err);
+                        alert('Error en el proceso de pago. Intente nuevamente.');
+                    }
+                });
+                
+                buttons.render('#paypal-button-container');
+            });
+    }
+
     if (metodoPagoField) {
-        metodoPagoField.addEventListener('change', toggleComprobante);
-        toggleComprobante();
+        metodoPagoField.addEventListener('change', togglePaymentFields);
+        togglePaymentFields();
     }
 });
 </script>
+
+
 {% endblock %}
