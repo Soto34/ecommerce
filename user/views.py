@@ -46,29 +46,43 @@ def login_view(request):
         email = request.POST.get('email')
         password = request.POST.get('password')
 
-        data = {
-            'username': email,
-            'password': password,
-        }
-
         try:
-            response = requests.post('http://localhost:8003/token', data=data)
-            response.raise_for_status()
+            response = requests.post(
+                "http://localhost:8003/token",
+                data={"username": email, "password": password}
+            )
         except requests.exceptions.RequestException as e:
-            messages.error(request, f"Error de conexión con la API: {str(e)}")
+            messages.error(request, f"Error al conectar con la API: {e}")
             return render(request, 'login.html')
 
         if response.status_code == 200:
-            token_data = response.json()
-            token = token_data.get('access_token')
-            request.session['jwt_token'] = token  # Guardar token JWT
-            request.session['user_email'] = email  # Guardar email en sesión
-            messages.success(request, "Login exitoso")
-            return redirect('home')
+            data = response.json()
+            token = data['access_token']
+            rol = data['user']['rol'].lower()
+
+            # Guardar en sesión
+            request.session['access_token'] = token
+            request.session['user_email'] = data['user']['email']
+            request.session['user_rol'] = rol
+
+            # Redirigir por rol
+            if rol == 'contador':
+                return redirect('vista_contador')
+            elif rol == 'repartidor':
+                return redirect('lista_repartidor')
+            elif rol == 'bodeguero':
+                return redirect('lista_bodegueroecommerce')
+            else:  # cliente o admin
+                return redirect('home')
         else:
-            messages.error(request, "Email o contraseña incorrectos")
+            try:
+                error_detail = response.json().get("detail", "Error al iniciar sesión.")
+            except:
+                error_detail = response.text
+            messages.error(request, error_detail)
 
     return render(request, 'login.html')
+
 
 def recover_view(request):
     return render(request, 'recover.html')
