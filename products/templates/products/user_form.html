@@ -48,10 +48,10 @@
                         <option value="contador" {% if user.rol == 'contador' %}selected{% endif %}>Contador</option>
                         <option value="bodeguero" {% if user.rol == 'bodeguero' %}selected{% endif %}>Bodeguero</option>
                         <option value="repartidor" {% if user.rol == 'repartidor' %}selected{% endif %}>Repartidor</option>
+                        <option value="cajero" {% if user.rol == 'cajero' %}selected{% endif %}>Cajero</option> <!-- ✅ Nuevo rol -->
                         <option value="admin" {% if user.rol == 'admin' %}selected{% endif %}>Administrador</option>
                     </select>
                 </div>
-
                 <div class="form-group">
                     <label for="password">Contraseña {% if user %}<small>(dejar vacío para no cambiar)</small>{% endif %}</label>
                     <input type="password" name="password" id="password" class="form-control" {% if not user %}required{% endif %}>

@@ -24,6 +24,7 @@ class CustomUser(AbstractBaseUser, PermissionsMixin):
         ('contador', 'Contador'),
         ('bodeguero', 'Bodeguero'),
         ('repartidor', 'Repartidor'),
+        ('cajero', 'Cajero'), 
         ('admin', 'Administrador'),
     )
 

@@ -68,6 +68,8 @@ def login_view(request):
                 return redirect('vista_contador')
             elif rol == 'repartidor':
                 return redirect('lista_repartidor')
+            elif rol == 'cajero':
+                return redirect('postventa')
             elif rol == 'bodeguero':
                 return redirect('lista_bodegueroecommerce')
             else:  # cliente o admin
