@@ -14,23 +14,23 @@
         {% csrf_token %}
         <h2>Register</h2>
 
-        <label for="email">Nombre</label>
-        <input type="name" id="name" name="name" required>
+        <label for="nombre">Nombre</label>
+        <input type="text" id="nombre" name="nombre" required>
 
-        <label for="email">Apellido</label>
-        <input type="apellido" id="apellido" name="apellido" required>
+        <label for="apellido">Apellido</label>
+        <input type="text" id="apellido" name="apellido" required>
 
-        <label for="email">Rut</label>
-        <input type="apellido" id="apellido" name="apellido" required>
+        <label for="rut">RUT</label>
+        <input type="text" id="rut" name="rut" required>
 
         <label for="email">Email</label>
-        <input type="Rut" id="Rut" name="Rut" required>
+        <input type="email" id="email" name="email" required>
 
         <label for="password">Password</label>
         <input type="password" id="password" name="password" required>
 
-        <label for="confirm">Confirm Password</label>
-        <input type="password" id="confirm" name="confirm" required>
+        <label for="password_confirm">Confirm Password</label>
+        <input type="password" id="password_confirm" name="password_confirm" required>
 
         <div class="form-footer">
           <a href="{% url 'user:login' %}">Back to Login</a>
@@ -38,6 +38,7 @@
 
         <button type="submit">Register</button>
       </form>
+
     </div>
     <div class="image-section"></div>
   </div>
