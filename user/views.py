@@ -39,8 +39,6 @@ def register_view(request):
 
     return render(request, 'register.html')
     
-   
-
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -118,3 +116,4 @@ def logout_view(request):
     request.session.pop('jwt_token', None)
     # Opcional: también limpiar sesión completa con request.session.flush()
     return redirect('user:login')
+

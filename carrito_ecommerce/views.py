@@ -254,6 +254,7 @@ def vista_contador(request):
         'resumen': resumen
     })
 
+
 def validar_pago(request, ticket_id):
     ticket = get_object_or_404(TicketEcommerce, id=ticket_id, estado_pago='pendiente')
     ticket.estado_pago = 'pagado'
@@ -261,9 +262,11 @@ def validar_pago(request, ticket_id):
     messages.success(request, f"El ticket #{ticket.id} fue marcado como pagado.")
     return redirect('vista_contador')
 
+
 def lista_bodeguero(request):
     tickets = TicketEcommerce.objects.filter(estado_pago='pagado')
     return render(request, 'carrito_ecommerce/bodeguero.html', {'tickets': tickets})
+
 
 def cambiar_estado_envio(request, ticket_id):
     ticket = get_object_or_404(TicketEcommerce, id=ticket_id)
@@ -276,9 +279,12 @@ def cambiar_estado_envio(request, ticket_id):
     ticket.save()
     return redirect('lista_bodegueroecommerce')
 
+
 def lista_repartidor(request):
     tickets = TicketEcommerce.objects.filter(estado_envio='productos recolectados')
     return render(request, 'carrito_ecommerce/repartidor.html', {'tickets': tickets})
+
+
 
 def cambiar_estado_envio2(request, ticket_id):
     ticket = get_object_or_404(TicketEcommerce, id=ticket_id)
@@ -288,8 +294,6 @@ def cambiar_estado_envio2(request, ticket_id):
         ticket.estado_envio = 'producto entregado'
     ticket.save()
     return redirect('lista_repartidor')
-
-
 
 def mis_pedidos_view(request):
     user_email = request.session.get('user_email')
