@@ -3,6 +3,53 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 import jwt
 
+# LOGIN
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        try:
+            response = requests.post(
+                "http://localhost:8003/token",
+                data={"username": email, "password": password}
+            )
+        except requests.exceptions.RequestException as e:
+            messages.error(request, f"Error al conectar con la API: {e}")
+            return render(request, 'login.html')
+
+        if response.status_code == 200:
+            data = response.json()
+            token = data['access_token']
+            rol = data['user']['rol'].lower()
+
+            # Guardar token y datos en sesión
+            request.session['access_token'] = token
+            request.session['user_email'] = data['user']['email']
+            request.session['user_rol'] = rol
+
+            # Redirigir según rol
+            if rol == 'contador':
+                return redirect('vista_contador')
+            elif rol == 'repartidor':
+                return redirect('lista_repartidor')
+            elif rol == 'cajero':
+                return redirect('postventa')
+            elif rol == 'bodeguero':
+                return redirect('lista_bodegueroecommerce')
+            else:  # cliente o admin
+                return redirect('home')
+        else:
+            try:
+                error_detail = response.json().get("detail", "Error al iniciar sesión.")
+            except:
+                error_detail = response.text
+            messages.error(request, error_detail)
+
+    return render(request, 'login.html')
+
+
+# REGISTRO
 def register_view(request):
     if request.method == 'POST':
         password = request.POST.get('password')
@@ -38,59 +85,12 @@ def register_view(request):
             messages.error(request, f"Error: {error_detail}")
 
     return render(request, 'register.html')
-    
-def login_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
-
-        try:
-            response = requests.post(
-                "http://localhost:8003/token",
-                data={"username": email, "password": password}
-            )
-        except requests.exceptions.RequestException as e:
-            messages.error(request, f"Error al conectar con la API: {e}")
-            return render(request, 'login.html')
-
-        if response.status_code == 200:
-            data = response.json()
-            token = data['access_token']
-            rol = data['user']['rol'].lower()
-
-            # Guardar en sesión
-            request.session['access_token'] = token
-            request.session['user_email'] = data['user']['email']
-            request.session['user_rol'] = rol
-
-            # Redirigir por rol
-            if rol == 'contador':
-                return redirect('vista_contador')
-            elif rol == 'repartidor':
-                return redirect('lista_repartidor')
-            elif rol == 'cajero':
-                return redirect('postventa')
-            elif rol == 'bodeguero':
-                return redirect('lista_bodegueroecommerce')
-            else:  # cliente o admin
-                return redirect('home')
-        else:
-            try:
-                error_detail = response.json().get("detail", "Error al iniciar sesión.")
-            except:
-                error_detail = response.text
-            messages.error(request, error_detail)
-
-    return render(request, 'login.html')
 
 
-def recover_view(request):
-    return render(request, 'recover.html')
-
-
-
+# PERFIL
 def profile_view(request):
-    token = request.session.get('jwt_token')
+    token = request.session.get('access_token')
+
     if not token:
         messages.error(request, "Debes iniciar sesión para ver tu perfil.")
         return redirect('user:login')
@@ -111,11 +111,14 @@ def profile_view(request):
     else:
         messages.error(request, "No autorizado o sesión expirada.")
         return redirect('user:login')
-    
 
+
+# RECUPERAR CONTRASEÑA (placeholder)
+def recover_view(request):
+    return render(request, 'recover.html')
+
+
+# LOGOUT
 def logout_view(request):
-    # Eliminar token JWT de sesión para "cerrar sesión"
-    request.session.pop('jwt_token', None)
-    # Opcional: también limpiar sesión completa con request.session.flush()
+    request.session.flush()  # Limpia toda la sesión
     return redirect('user:login')
-
