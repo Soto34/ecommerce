@@ -16,7 +16,7 @@
         <div class="sidebar">
             <div class="logo">
                 <i class="fas fa-store"></i>
-                <span>Tienda</span>
+                <span>PanZon</span>
             </div>
             <nav>
                 <ul>
@@ -28,6 +28,12 @@
                     </li>
                     <li {% if request.resolver_match.url_name == 'users_list' %}class="active"{% endif %}>
                         <a href="{% url 'users_list' %}"><i class="fas fa-users"></i> Usuarios</a>
+                    </li>
+                    <li {% if request.resolver_match.url_name == 'historial_postventa' %}class="active"{% endif %}>
+                        <a href="{% url 'historial_postventa' %}"><i class="fas fa-tags"></i> Historial Postventa</a>
+                    </li>
+                    <li {% if request.resolver_match.url_name == 'historuser:logoutal_postventa' %}class="active"{% endif %}>
+                        <a href="{% url 'user:logout' %}"><i class="fas fa-sign-out-alt"></i> Cerrar sesion</a>
                     </li>
                 </ul>
             </nav>

@@ -37,7 +37,9 @@ def login_view(request):
                 return redirect('postventa')
             elif rol == 'bodeguero':
                 return redirect('lista_bodegueroecommerce')
-            else:  # cliente o admin
+            elif rol == 'admin':
+                return redirect('products_list')
+            else:  # cliente 
                 return redirect('home')
         else:
             try:

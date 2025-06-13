@@ -3,7 +3,7 @@
 {% block content %}
 <style>
     .center-wrapper {
-        min-height: calc(100vh - 300px); /* Ajusta si tu header/footer son más grandes */
+        min-height: calc(100vh - 300px);
         display: flex;
         align-items: center;
         justify-content: center;
@@ -29,9 +29,12 @@
         <p><strong>RUT:</strong> {{ user.rut }}</p>
 
         <div class="d-grid gap-2 mt-3">
-            <a href="{% url 'mis_pedidos' %}" class="btn btn-warning text-white">Mis Pedidos</a>
+            {% if user.rol == 'cliente' %}
+                <a href="{% url 'mis_pedidos' %}" class="btn btn-warning text-white">Mis Pedidos</a>
+            {% endif %}
+            <a href="javascript:history.back()" class="btn btn-secondary">Volver atrás</a>
             <a href="{% url 'user:logout' %}" class="btn btn-outline-danger">Cerrar sesión</a>
-        </div>
+        </div>    
     </div>
 </div>
 {% endblock %}
